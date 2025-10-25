@@ -3552,14 +3552,14 @@ const MyCompanyDetails = () => {
                     </label>
                     <div className="flex">
                       <input
-                        className="mt-1 block w-[70px] px-2 py-[12px] shadow-sm rounded-l-xl text-sm bg-gray-200 focus:outline-none"
+                        className="mt-1 block w-[70px] px-2 py-[12px] shadow-sm rounded-l-[5px] text-sm bg-gray-200 focus:outline-none"
                         disabled
                         value={"https://"}
                       />
                       <input
                         type="text"
                         {...register("SMInstagram")}
-                        className={`mt-1 block w-full px-2 py-[12px] shadow-sm rounded-r-xl text-sm bg-white focus:outline-none ${
+                        className={`mt-1 block w-full px-2 py-[12px] shadow-sm rounded-r-[5px] text-sm bg-white focus:outline-none ${
                           errors.SMInstagram
                             ? "border-[1px] "
                             : "border-gray-300"
@@ -3581,14 +3581,14 @@ const MyCompanyDetails = () => {
                     </label>
                     <div className="flex">
                       <input
-                        className="mt-1 block w-[70px] px-2 py-[12px] shadow-sm rounded-l-xl text-sm bg-gray-200 focus:outline-none"
+                        className="mt-1 block w-[70px] px-2 py-[12px] shadow-sm rounded-l-[5px] text-sm bg-gray-200 focus:outline-none"
                         disabled
                         value={"https://"}
                       />
                       <input
                         type="text"
                         {...register("SMTwitter")}
-                        className={`mt-1 block w-full px-2 py-[12px] shadow-sm rounded-r-xl text-sm bg-white focus:outline-none ${
+                        className={`mt-1 block w-full px-2 py-[12px] shadow-sm rounded-r-[5px] text-sm bg-white focus:outline-none ${
                           errors.SMTwitter ? "border-[1px] " : "border-gray-300"
                         }`}
                         placeholder="Enter Twitter Link"
@@ -3610,14 +3610,14 @@ const MyCompanyDetails = () => {
                     </label>
                     <div className="flex">
                       <input
-                        className="mt-1 block w-[70px] px-2 py-[12px] shadow-sm rounded-l-xl text-sm bg-gray-200 focus:outline-none"
+                        className="mt-1 block w-[70px] px-2 py-[12px] shadow-sm rounded-l-[5px] text-sm bg-gray-200 focus:outline-none"
                         disabled
                         value={"https://"}
                       />
                       <input
                         type="text"
                         {...register("SMLinkedIn")}
-                        className={`mt-1 block w-full px-2 py-[12px] shadow-sm rounded-r-xl text-sm bg-white focus:outline-none ${
+                        className={`mt-1 block w-full px-2 py-[12px] shadow-sm rounded-r-[5px] text-sm bg-white focus:outline-none ${
                           errors.SMLinkedIn
                             ? "border-[1px] "
                             : "border-gray-300"
@@ -3639,14 +3639,14 @@ const MyCompanyDetails = () => {
                     </label>
                     <div className="flex">
                       <input
-                        className="mt-1 block w-[70px] px-2 py-[12px] shadow-sm rounded-l-xl text-sm bg-gray-200 focus:outline-none"
+                        className="mt-1 block w-[70px] px-2 py-[12px] shadow-sm rounded-l-[5px] text-sm bg-gray-200 focus:outline-none"
                         disabled
                         value={"https://"}
                       />
                       <input
                         type="text"
                         {...register("SMFacebook")}
-                        className={`mt-1 block w-full px-2 py-[12px] shadow-sm rounded-r-xl text-sm bg-white focus:outline-none ${
+                        className={`mt-1 block w-full px-2 py-[12px] shadow-sm rounded-r-[5px] text-sm bg-white focus:outline-none ${
                           errors.SMFacebook
                             ? "border-[1px] "
                             : "border-gray-300"
@@ -3668,14 +3668,14 @@ const MyCompanyDetails = () => {
                     </label>
                     <div className="flex">
                       <input
-                        className="mt-1 block w-[70px] px-2 py-[12px] shadow-sm rounded-l-xl text-sm bg-gray-200 focus:outline-none"
+                        className="mt-1 block w-[70px] px-2 py-[12px] shadow-sm rounded-l-[5px] text-sm bg-gray-200 focus:outline-none"
                         disabled
                         value={"https://"}
                       />
                       <input
                         type="text"
                         {...register("SMWebsite")}
-                        className={`mt-1 block w-full px-2 py-[12px] shadow-sm rounded-r-xl text-sm bg-white focus:outline-none ${
+                        className={`mt-1 block w-full px-2 py-[12px] shadow-sm rounded-r-[5px] text-sm bg-white focus:outline-none ${
                           errors.SMWebsite ? "border-[1px] " : "border-gray-300"
                         }`}
                         placeholder="Enter Website Link"
