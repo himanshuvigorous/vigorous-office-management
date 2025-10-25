@@ -1,0 +1,67 @@
+/* Custom calendar styles */
+.rbc-calendar {
+    background-color: white;
+    border-radius: 0 0 8px 8px;
+  }
+  
+  .rbc-header {
+    background-color: #f8fafc;
+    padding: 8px 0;
+    border-bottom: 1px solid #e2e8f0;
+    color: #334155;
+    font-weight: 500;
+  }
+  
+  .rbc-month-view {
+    border: none;
+  }
+  
+  .rbc-month-row {
+    min-height: 100px;
+  }
+  
+  .rbc-date-cell {
+    padding: 4px;
+    text-align: center;
+  }
+  
+  .rbc-off-range-bg {
+    background-color: #f8fafc;
+  }
+  
+  .rbc-today {
+    background-color: #ecfdf5;
+  }
+  
+  /* Modal styles */
+  .holiday-modal .ant-modal-header {
+    border-bottom: 1px solid #e2e8f0;
+  }
+  
+  .holiday-modal .ant-modal-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1e293b;
+  }
+  
+  /* Event tooltip styles */
+  .rbc-overlay {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    padding: 16px;
+    max-width: 300px;
+  }
+  
+  .rbc-overlay-header {
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #1e293b;
+  }
+  
+  /* Month view event limit indicator */
+  .rbc-show-more {
+    color: #3b82f6;
+    font-size: 0.75rem;
+    margin-top: 2px;
+  }

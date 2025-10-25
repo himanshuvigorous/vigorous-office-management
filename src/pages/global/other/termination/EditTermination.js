@@ -1,0 +1,494 @@
+import { Controller, useForm, useWatch } from "react-hook-form";
+import GlobalLayout from "../../../../global_layouts/GlobalLayout/GlobalLayout";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate, useParams } from "react-router-dom";
+import { decrypt } from "../../../../config/Encryption";
+import { useEffect, useState } from "react";
+import {
+  domainName,
+  inputAntdSelectClassName,
+  inputClassName,
+  inputDisabledClassName,
+  inputLabelClassName,
+  inputLabelClassNameReactSelect,
+} from "../../../../constents/global";
+import { employeSearch } from "../../../employeManagement/employeFeatures/_employe_reducers";
+
+import CustomDatePicker from "../../../../global_layouts/DatePicker/CustomDatePicker";
+import moment from "moment";
+import dayjs from "dayjs";
+import { Select } from "antd";
+import {
+  getTerminationDetails,
+  updateTerminationFunc,
+} from "./terminationFeatures/termination_reducers";
+import getUserIds from "../../../../constents/getUserIds";
+import { branchSearch } from "../../../branch/branchManagement/branchFeatures/_branch_reducers";
+import { companySearch } from "../../../company/companyManagement/companyFeatures/_company_reducers";
+import Loader from "../../../../global_layouts/Loader";
+import { FaRegFile, FaTimes } from "react-icons/fa";
+import { fileUploadFunc } from "../fileManagement/FileManagementFeatures/_file_management_reducers";
+
+
+const EditTermination = () => {
+  const { loading: terminationLoading } = useSelector((state) => state.Termination);
+  const {
+    register,
+    handleSubmit,
+    control,
+    setValue,
+    formState: { errors },
+  } = useForm();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const { terminationIdEnc } = useParams();
+  const userInfoglobal = JSON.parse(
+    localStorage.getItem(`user_info_${domainName}`)
+  );
+  const { userCompanyId, userBranchId, userType } = getUserIds();
+  const { companyList } = useSelector((state) => state.company);
+  const { branchList } = useSelector((state) => state.branch);
+  const terminationId = decrypt(terminationIdEnc);
+  const { TerminationDetails } = useSelector((state) => state.Termination);
+  const { employeList } = useSelector((state) => state.employe);
+  const [isPreview, setIsPreview] = useState(false);
+
+  const [formData, setFormData] = useState({
+    attachments: []
+  });
+
+
+
+  useEffect(() => {
+    dispatch(employeSearch());
+  }, []);
+
+
+
+  useEffect(() => {
+    let reqData = {
+      _id: terminationId,
+    };
+    dispatch(getTerminationDetails(reqData));
+  }, []);
+
+  const companyId = useWatch({
+    control,
+    name: "PDCompanyId",
+    defaultValue: userCompanyId,
+  });
+  const branchId = useWatch({
+    control,
+    name: "PDBranchId",
+    defaultValue: userBranchId,
+  });
+  useEffect(() => {
+    if (companyId || userType === "company" || userType === "companyDirector") {
+      dispatch(
+        branchSearch({
+          text: "",
+          sort: true,
+          status: true,
+          companyId: companyId,
+        })
+      );
+    }
+  }, [companyId]);
+  useEffect(() => {
+    if (userType === "admin") {
+      dispatch(
+        companySearch({
+          text: "",
+          sort: true,
+          status: true,
+          isPagination: false,
+        })
+      );
+    }
+  }, []);
+
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    const reqData = {
+      filePath: file,
+      isVideo: false,
+      isMultiple: false,
+    };
+    dispatch(fileUploadFunc(reqData)).then((res) => {
+      if (res?.payload?.data) {
+        setFormData(prev => ({
+          ...prev,
+          attachments: [...prev?.attachments || [], res?.payload?.data]
+        }));
+      }
+    });
+  };
+
+  const handleRemoveFile = (index) => {
+    setFormData(prev => {
+      const updatedAttachments = prev?.attachments.filter((_, i) => i !== index);
+      return { ...prev, attachments: updatedAttachments };
+    });
+  };
+
+  useEffect(() => {
+    if (TerminationDetails) {
+
+      setValue("employee", TerminationDetails?.employeName);
+      setValue("PDBranchId", TerminationDetails?.branchId);
+      setValue("PDCompanyId", TerminationDetails?.companyId);
+      setValue("title", TerminationDetails?.title);
+      setValue("description", TerminationDetails?.description);
+      setValue("applyDate", dayjs(TerminationDetails?.applyDate));
+      setFormData({
+        attachments: TerminationDetails?.attachment
+      });
+    }
+  }, [TerminationDetails]);
+
+  const onSubmit = (data) => {
+    const finalPayload = {
+      _id: terminationId,
+      companyId: TerminationDetails.companyId,
+      directorId: "",
+      branchId: TerminationDetails?.branchId,
+      employeId: TerminationDetails?.employeId,
+      title: data?.title,
+      description: data?.description,
+      applyDate: dayjs(data?.applyDate).format("YYYY-MM-DD"),
+      // completeDate: data?.completeDate,
+      noticePeriod: TerminationDetails?.noticePeriod,
+      type: "termination",
+      status: TerminationDetails?.status,
+      attachment: formData?.attachments,
+    };
+    dispatch(updateTerminationFunc(finalPayload)).then((data) => {
+      if (!data.error) navigate(-1);
+    });
+  };
+
+
+
+  return (
+    <GlobalLayout>
+      <div className="gap-4">
+        <form
+          autoComplete="off"
+          className="mt-2 md:px-1"
+          onSubmit={handleSubmit(onSubmit)}
+        >
+          <div className="grid grid-cols-1 md:grid-cols-2 md:gap-8 gap-3 my-2">
+            {userInfoglobal?.userType === "admin" && (
+              <div className="">
+                <label className={`${inputLabelClassName}`}>
+                  Company <span className="text-red-600">*</span>
+                </label>
+                {/* <select
+                {...register("PDCompanyId", {
+                  required: "company is required",
+                })}
+                className={` ${inputClassName} ${errors.PDCompanyId
+                  ? "border-[1px] "
+                  : "border-gray-300"
+                  }`}
+              >
+                <option className="" value="">
+                  Select Comapany
+                </option>
+                {companyList?.map((type) => (
+                  <option value={type?._id}>{type?.fullName}</option>
+                ))}
+              </select> */}
+
+                <Controller
+                  control={control}
+                  name="PDCompanyId"
+                  disabled
+                  rules={{ required: "Company is required" }}
+                  render={({ field }) => (
+                    <Select
+                      {...field}
+                      className={`${inputAntdSelectClassName} `}
+                    >
+                      <Select.Option value="">Select Company</Select.Option>
+                      {companyList?.map((type) => (
+                        <Select.Option key={type?._id} value={type?._id}>
+                          {type?.fullName}
+                        </Select.Option>
+                      ))}
+                    </Select>
+                  )}
+                />
+                {errors.PDCompanyId && (
+                  <p className="text-red-500 text-sm">
+                    {errors.PDCompanyId.message}
+                  </p>
+                )}
+              </div>
+            )}
+            {(userInfoglobal?.userType === "admin" ||
+              userInfoglobal?.userType === "company" ||
+              userInfoglobal?.userType === "companyDirector") && (
+                <div className="">
+                  <label className={`${inputLabelClassName}`}>
+                    Branch <span className="text-red-600">*</span>
+                  </label>
+                  {/* <select
+                {...register("PDBranchId", {
+                  required: "Branch is required",
+                })}
+                className={` ${inputClassName} ${errors.PDBranchId
+                  ? "border-[1px] "
+                  : "border-gray-300"
+                  }`}
+              >
+                <option className="" value="">
+                  Select Branch
+                </option>
+                {branchList?.map((type) => (
+                  <option value={type?._id}>{type?.fullName}</option>
+                ))}
+              </select> */}
+                  <Controller
+                    control={control}
+                    name="PDBranchId"
+                    disabled
+                    rules={{ required: "Branch is required" }}
+                    render={({ field }) => (
+                      <Select
+                        {...field}
+                        className={`${inputAntdSelectClassName} `}
+                      >
+                        <Select.Option value="">Select Branch</Select.Option>
+                        {branchList?.map((type) => (
+                          <Select.Option key={type?._id} value={type?._id}>
+                            {type?.fullName}
+                          </Select.Option>
+                        ))}
+                      </Select>
+                    )}
+                  />
+                  {errors.PDBranchId && (
+                    <p className="text-red-500 text-sm">
+                      {errors.PDBranchId.message}
+                    </p>
+                  )}
+                </div>
+              )}
+
+            <div className="w-full">
+              <label className={`${inputLabelClassName}`}>
+                Employee Name <span className="text-red-600">*</span>
+              </label>
+              <input
+                type="text"
+                disabled
+                {...register("employee")}
+                className={`placeholder: ${inputDisabledClassName} ${errors.employee
+                  ? "border-[1px] "
+                  : "border-gray-300"
+                  }`}
+                placeholder="Enter Employee Name"
+              />
+              {errors.employee && (
+                <p className="text-red-500 text-sm">
+                  {errors.employee.message}
+                </p>
+              )}
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 md:gap-8 gap-3 my-2">
+            {/* <div className="">
+              <label className={`${inputLabelClassName}`}>
+                Title <span className="text-red-600">*</span>
+              </label>
+              <input
+                type="text"
+                {...register("title", {
+                  required: "Title is required",
+                })}
+                className={`${inputClassName} ${errors.title
+                  ? "border-[1px] "
+                  : "border-gray-300"
+                  }`}
+                placeholder="Enter Title"
+              />
+              {errors.title && (
+                <p className="text-red-500 text-sm">{errors.title.message}</p>
+              )}
+            </div> */}
+
+            <div className="">
+              <label className={`${inputLabelClassName}`}>
+                Description <span className="text-red-600">*</span>
+              </label>
+              <input
+                type="text"
+                {...register("description", {
+                  required: "Description is required",
+                })}
+                className={`${inputClassName} ${errors.description
+                  ? "border-[1px] "
+                  : "border-gray-300"
+                  }`}
+                placeholder="Enter Description"
+              />
+              {errors.description && (
+                <p className="text-red-500 text-sm">
+                  {errors.description.message}
+                </p>
+              )}
+            </div>
+                <div>
+              <label className={`${inputLabelClassName}`}>
+                Apply Date <span className="text-red-600">*</span>
+              </label>
+              <Controller
+                name="applyDate"
+                control={control}
+                render={({ field }) => (
+                  <CustomDatePicker field={field} errors={errors} disabledDate={(current) => {
+                    return current && current.isBefore(moment().endOf('day'), 'day');
+                  }} />
+                )}
+              />
+              {errors.applyDate && (
+                <p className="text-red-500 text-sm">Apply Date is required</p>
+              )}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 md:gap-8 gap-3 my-2">
+
+        
+
+            {/* <div>
+              <label className={`${inputLabelClassName}`}>
+                Apply Date <span className="text-red-600">*</span>
+              </label>
+              <Controller
+                name="applyDate"
+                control={control}
+                render={({ field }) => (
+                  <CustomDatePicker
+                    field={field}
+                    errors={errors}
+                    disabledDate={(current) => {
+                      return (
+                        current &&
+                        current.isBefore(moment().endOf("day"), "day")
+                      );
+                    }}
+                  />
+                )}
+              />
+              {errors.applyDate && (
+                <p className="text-red-500 text-sm">Apply Date is required</p>
+              )}
+            </div> */}
+
+            {/* <div>
+              <label className={`${inputLabelClassName}`}>
+                Complete Date <span className="text-red-600">*</span>
+              </label>
+              <Controller
+                name="completeDate"
+                control={control}
+                render={({ field }) => (
+                  <CustomDatePicker field={field} errors={errors} disabledDate={(current) => {
+                    return current && current.isBefore(moment().endOf('day'), 'day');
+                  }} />
+                )}
+              />
+              {errors.completeDate && (
+                <p className="text-red-500 text-sm">Complete Date is required</p>
+              )}
+            </div> */}
+
+            {/* <div className="w-full">
+              <label className={`${inputLabelClassName}`}>
+                Status <span className="text-red-600">*</span>
+              </label>
+              <Controller
+                name="status"
+                control={control}
+                rules={{ required: "Status is required" }}
+                render={({ field }) => (
+                  <Select
+                    {...field}
+                    className={`${inputAntdSelectClassName} ${errors?.status ? "border-[1px] " : ""}`}
+                    placeholder="Select Status"
+                  >
+                    <Select.Option value="Requested">Requested</Select.Option>
+                    <Select.Option value="Approved">Approved</Select.Option>
+                    <Select.Option value="Rejected">Rejected</Select.Option>
+                    <Select.Option value="Completed">Completed</Select.Option>
+                  </Select>
+                )}
+              />
+              {errors?.status && (
+                <p className="text-red-600 text-sm">{errors.status.message}</p>
+              )}
+            </div> */}
+          </div>
+
+          <div className="">
+            <label className={`${inputLabelClassName}`}>
+              Documents 
+            </label>
+            {!isPreview ? (
+              <div className="space-y-4">
+                <input type="file" onChange={handleFileChange} className="hidden" id="file-upload" />
+                <label htmlFor="file-upload" className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-600 bg-white cursor-pointer">
+                  <FaRegFile className="mr-2" /> Add Documents
+                </label>
+
+                <div className="space-y-2">
+                  {formData?.attachments?.map((file, index) => (
+                    <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded-md">
+                      <a
+                        href={`${process.env.REACT_APP_BACKEND_DOMAIN_NAME}/public/${file}`}
+                        className="flex items-center space-x-2"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <FaRegFile className="text-gray-500" />
+                        <span className="text-sm text-gray-600">{file}</span>
+                      </a>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveFile(index)}
+                        className="text-red-500 hover:text-red-700"
+                      >
+                        <FaTimes />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {/* Attachments preview logic */}
+              </div>
+            )}
+          </div>
+
+          {/* Submit Button */}
+          <div className="flex justify-end">
+            <button
+              type="submit"
+              disabled={terminationLoading}
+              className={`${terminationLoading ? 'bg-gray-400' : 'bg-header'} text-white p-2 px-4 rounded mt-3`}
+            >
+              {terminationLoading ? <Loader /> : 'Submit'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </GlobalLayout>
+  );
+};
+
+export default EditTermination;

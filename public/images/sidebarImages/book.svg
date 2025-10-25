@@ -1,0 +1,11 @@
+<svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="book" clip-path="url(#clip0_5_159)">
+<path id="Vector" d="M2.66699 13.8752C2.66699 13.4331 2.84259 13.0092 3.15515 12.6967C3.46771 12.3841 3.89163 12.2085 4.33366 12.2085H13.3337" stroke="#87888A" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector_2" d="M4.33366 2.2085H13.3337V15.5418H4.33366C3.89163 15.5418 3.46771 15.3662 3.15515 15.0537C2.84259 14.7411 2.66699 14.3172 2.66699 13.8752V3.87516C2.66699 3.43314 2.84259 3.00921 3.15515 2.69665C3.46771 2.38409 3.89163 2.2085 4.33366 2.2085Z" stroke="#87888A" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<defs>
+<clipPath id="clip0_5_159">
+<rect width="16" height="16" fill="white" transform="translate(0 0.875)"/>
+</clipPath>
+</defs>
+</svg>

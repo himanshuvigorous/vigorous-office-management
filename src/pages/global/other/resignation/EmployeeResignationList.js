@@ -1,0 +1,342 @@
+import React, { useEffect, useState } from "react";
+import GlobalLayout from "../../../../global_layouts/GlobalLayout/GlobalLayout";
+import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+
+import Swal from "sweetalert2";
+
+import CustomPagination from "../../../../component/CustomPagination/CustomPagination";
+import { domainName, inputAntdSelectClassNameFilter,  } from "../../../../constents/global";
+import { Controller, useForm, useWatch } from "react-hook-form";
+
+import { companySearch } from "../../../company/companyManagement/companyFeatures/_company_reducers";
+
+import { Select, Tooltip } from "antd";
+import getUserIds from "../../../../constents/getUserIds";
+
+import { deleteResignFunc, getEmployeeResignationList, statusResignFunc } from "./resignationFeatures/resignation_reducers";
+
+import moment from "moment";
+import Loader2 from "../../../../global_layouts/Loader/Loader2";
+
+
+function EmployeeResignationList() {
+  const { register, control, setValue, formState: { errors } } = useForm();
+  const { userCompanyId, userBranchId, userType, userEmployeId } = getUserIds();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { employeeResignationData, totalemployeeResignCount, employeeLoading } = useSelector((state) => state.resignation);
+  const [searchText, setSearchText] = useState("");
+  // const [status, setStatus] = useState("");
+  const userInfoglobal = JSON.parse(
+    localStorage.getItem(`user_info_${domainName}`)
+  );
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const onPaginationChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  const companyId = useWatch({
+    control,
+    name: "PDCompanyId",
+    defaultValue: userCompanyId,
+  });
+
+  const status = useWatch({
+    control,
+    name: "status",
+    defaultValue: "",
+  });
+
+  const limit = 10;
+
+  useEffect(() => {
+    if(userInfoglobal?.userType === "employee" && userInfoglobal?._id ){
+    getCommonResignationRequest();
+    }
+  }, [currentPage, searchText, status]);
+
+  const getCommonResignationRequest = () => {
+
+    const data = {
+      currentPage: currentPage,
+      pageSize: limit,
+      reqData: {
+        directorId: "",
+        companyId: userCompanyId || "",
+        branchId: userBranchId || "",
+        employeId: userEmployeId,
+        "text": searchText,
+        "sort": true,
+        "status": status,
+        "isPagination": true,
+        type: "resignation"
+      }
+    };
+    dispatch(getEmployeeResignationList(data));
+  };
+
+  const handleDelete = (id) => {
+    let reqData = {
+      _id: id,
+    };
+    Swal.fire({
+      title: "Warning",
+      text: "Are you sure you want to delete!",
+      icon: "warning",
+      showCancelButton: true,
+      cancelButtonText: "No",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        dispatch(deleteResignFunc(reqData)).then((data) => {
+          getCommonResignationRequest()
+        });
+      }
+    });
+  };
+  // useEffect(() => {
+  //   if (
+  //     companyId ||
+  //     userType === "company" ||
+  //     userType === "companyDirector"
+  //   ) {
+  //     dispatch(
+  //       branchSearch({
+  //         text: "",
+  //         sort: true,
+  //         status: true,
+  //         isPagination: false,
+  //         companyId: companyId
+  //       })
+  //     );
+  //   }
+  // }, [companyId])
+  useEffect(() => {
+    if (userType === "admin") {
+      dispatch(
+        companySearch({
+          text: "",
+          sort: true,
+          status: true,
+          isPagination: false,
+        })
+      );
+    }
+  }, []);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState(null); // State to store the selected template data
+
+  // Function to open the modal with the template details
+  const openModal = (template) => {
+    setSelectedTemplate(template);
+    setModalOpen(true);
+  };
+
+  // Function to close the modal
+  const closeModal = () => {
+    setModalOpen(false);
+    setSelectedTemplate(null);
+  };
+
+  const handleStatusUpdate = (element, status) => {
+    Swal.fire({
+      title: 'Provide feedback',
+      input: 'textarea',
+      inputLabel: 'Feedback (optional)',
+      inputPlaceholder: 'Type your feedback here...',
+      showCancelButton: true,
+      confirmButtonText: `Update as ${status}`,
+      cancelButtonText: 'Cancel',
+      inputValidator: (value) => {
+        if (value === undefined || value === '') {
+          return 'Feedback cannot be empty';
+        }
+        return null;
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const feedback = result.value; // Get feedback input
+        // Dispatch the status update with feedback
+        dispatch(
+          statusResignFunc({
+            _id: element?._id,
+            status: status,
+            reason: feedback,
+          })
+        ).then((data) => {
+          if (!data?.error) {
+            getCommonResignationRequest();
+          }
+        });
+      }
+    });
+  };
+
+  const onChange = (e) => {
+    
+    setSearchText(e);
+  };
+  if (userInfoglobal?.userType !== "employee") {
+    return (
+      <GlobalLayout>
+        <div className="bg-red-100 text-red-800 p-4 rounded-md mt-2">
+          <p className="text-center font-semibold">
+            You are not an employee. This page is viewable for employees only.
+          </p>
+        </div>
+      </GlobalLayout>
+    )
+  }
+  return (
+    <GlobalLayout onChange={onChange}>
+
+
+      <div className="">
+        <div className="flex justify-between items-center md:space-y-0 space-y-2 py-1">
+          <div className="flex items-center space-x-2">
+
+
+            <Controller
+              name="status"
+              control={control}
+              rules={{}}
+              render={({ field }) => (
+                <Select
+                  {...field}
+                  className={` w-32 ${inputAntdSelectClassNameFilter} ${errors.status ? "border-[1px] " : "border-gray-300"
+                    }`}
+                  placeholder="Select Status"
+                  showSearch
+                  filterOption={(input, option) =>
+                    String(option?.children).toLowerCase().includes(input.toLowerCase())
+                  }
+                >
+                  <Select.Option value="">Select Status</Select.Option>
+                  <Select.Option value='Rejected'>{"Rejected"}</Select.Option>
+                  <Select.Option value='Approved'>{"Approved"}</Select.Option>
+                  <Select.Option value='Requested'>{"Requested"}</Select.Option>
+                  <Select.Option value='Completed'>{"Completed"}</Select.Option>
+                </Select>
+              )}
+            />
+          </div>
+          <div className="flex justify-end items-center">
+            <button
+              onClick={() => {
+                setValue("status", "");
+                setValue("PDBranchId", "");
+                setValue("PdDepartmentId", "");
+                setValue("PdCompanyId", "");
+              }}
+              className="bg-header   py-[6px]  rounded-md  flex px-5 justify-center items-center  text-white"
+            >
+              <span className="text-[12px]">Reset</span>
+            </button>
+          </div>
+          {/* <button
+                onClick={() => { navigate("/admin/employee-resignation/create")}}
+                className="bg-header px-2 py-1.5 rounded-md flex justify-center items-center space-x-2 text-white"
+              >
+                <FaPlus />
+                <span className="text-[12px]">Add Resignation</span>
+              </button> */}
+        </div>
+      </div>
+
+      <div className="w-full">
+        <div className="bg-[#ffffff] w-full overflow-x-auto mt-1 rounded-xl">
+          <table className="w-full max-w-full rounded-xl overflow-x-auto">
+            <thead>
+              <tr className="border-b-[1px] border-[#DDDDDD] bg-header capitalize text-[12px] text-[#ffff] font-[500] h-[40px]">
+                <th className="p-2 whitespace-nowrap w-[10%]">S.No.</th>
+                <th className="p-2 whitespace-nowrap">Title</th>
+                <th className="p-2 whitespace-nowrap">Employee Name</th>
+                <th className="p-2 whitespace-nowrap">Description</th>
+                <th className="p-2 whitespace-nowrap">Apply Date</th>
+
+                <th className="p-2 whitespace-nowrap">Create At</th>
+                <th className="p-2 whitespace-nowrap">Create By</th>
+                <th className="p-2 whitespace-nowrap">Notice Period(days)</th>
+                <th className="p-2 whitespace-nowrap">Status</th>
+
+              </tr>
+            </thead>
+            {employeeLoading ? <tr className="bg-white bg-opacity-5 ">
+              <td
+                colSpan={10}
+                className="px-6 py-2 whitespace-nowrap font-[600] text-sm text-gray-500"
+              >
+                <Loader2 />
+              </td>
+            </tr> :
+              <tbody>
+                {employeeResignationData && employeeResignationData?.length > 0 ? (
+                  employeeResignationData?.map((element, index) => (
+                    <React.Fragment key={element._id}>
+                      <tr
+                        className={`text-black ${index % 2 === 0 ? "bg-[#e9ecef]/80" : "bg-white"} text-[14px] border-b-[1px] border-[#DDDDDD]`}
+                      >
+                        <td className="whitespace-nowrap p-2">
+                          {index + 1 + (currentPage - 1) * limit}
+                        </td>
+                        <td className="whitespace-nowrap p-2">{element?.title}</td>
+                        <td className="whitespace-nowrap p-2">{element?.employeName ?? "-"}</td>
+                        <td className="whitespace p-2">{element?.description}</td>
+                        <td className="whitespace-nowrap p-2">{moment(element?.applyDate).format("DD-MM-YYYY hh:mm a")}</td>
+                        <td className="whitespace-nowrap p-2">{moment(element?.createdAt).format("DD-MM-YYYY hh:mm a")}</td>
+                        <td className="whitespace p-2">{element?.createdBy}</td>
+                        <td className="whitespace-nowrap p-2">{element?.noticePeriod}</td>
+                        <td className="whitespace-nowrap border-none p-2 ">
+                          <span
+                            className={`${element?.status ? "bg-[#E0FFBE] border-green-500" : "bg-red-200 border-red-500"} border-[1px] px-2 py-1.5 rounded-lg text-black text-[12px]`}
+                          >
+                            {element?.status}
+                          </span>
+                        </td>
+
+
+                      </tr>
+                    </React.Fragment>
+                  ))
+                ) : (
+                  <tr className="bg-white bg-opacity-5">
+                    <td colSpan={6} className="px-6 py-2 whitespace-nowrap font-[600] text-sm text-gray-500">
+                      Record Not Found
+                    </td>
+                  </tr>
+                )}
+              </tbody>}
+          </table>
+        </div>
+        {employeeResignationData?.length > 0 &&
+          <CustomPagination
+            totalCount={totalemployeeResignCount}
+            pageSize={limit}
+            currentPage={currentPage}
+            onChange={onPaginationChange}
+          />}
+      </div>
+
+      {modalOpen && selectedTemplate && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[1501]" onClick={closeModal}>
+          <div className="animate-slideInFromTop bg-white rounded-lg px-6 pt-6 pb-3 w-[800px] max-h-[70vh] overflow-y-hidden" onClick={(e) => e.stopPropagation()}>
+            <div className="mt-4">
+              <div dangerouslySetInnerHTML={{ __html: selectedTemplate?.content }}></div>
+            </div>
+            <div className="mt-4 flex justify-end">
+              <button
+                onClick={closeModal}
+                className="px-4 py-2 text-white bg-header rounded-md"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+    </GlobalLayout>
+  );
+}
+export default EmployeeResignationList;

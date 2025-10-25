@@ -1,0 +1,356 @@
+.inputAntdSelectClassName {
+  width: 100% !important;
+  height: 45px !important;
+  margin-top: 2px !important;
+  font-family: "montserrat" !important;
+}
+
+.inputAntdSelectClassName .ant-select-selector {
+  border-radius: 5px !important;
+  border: 1px solid #d9d9d9 !important;
+  /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important; */
+}
+
+.inputAntdMultipleSelectClassName {
+  width: 100% !important;
+  min-height: 45px !important;
+  margin-top: 2px !important;
+}
+
+.inputAntdMultipleSelectClassName .ant-select-selector {
+  border-radius: 5px !important;
+  min-height: 45px !important;
+  border: 1px solid #d9d9d9 !important;
+  /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important; */
+}
+
+.ant-modal-body {
+  overflow-x: auto !important;
+}
+
+.ant-modal-mask {
+  z-index: 1560 !important;
+}
+
+.ant-modal-wrap {
+  z-index: 1570 !important;
+}
+
+.custom-select {
+  position: relative;
+  width: 200px;
+  font-family: Arial, sans-serif;
+}
+
+.custom-select-box {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  align-items: center;
+}
+
+.custom-arrow {
+  border-width: 0.25em;
+  border-color: transparent transparent #333 transparent;
+  border-style: solid;
+  width: 0;
+  height: 0;
+  display: inline-block;
+  margin-left: 10px;
+}
+
+.custom-arrow.open {
+  transform: rotate(180deg);
+}
+
+.custom-select-options {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  border: 1px solid #ccc;
+  background-color: white;
+  z-index: 10;
+}
+
+.custom-select-option {
+  padding: 10px;
+  cursor: pointer;
+}
+
+.custom-select-option:hover {
+  background-color: #f1f1f1;
+}
+
+@media (max-width: 767px) {
+  .custom-select {
+    width: 100%;
+  }
+}
+
+.react-select__control {
+  border: none !important;
+  border-radius: 0px !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.react-select__control:focus {
+  box-shadow: none !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+input[type="number"]::-webkit-scrollbar {
+  display: none;
+}
+
+input[type="number"] {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.ant-input {
+  border: none !important;
+  border: 0px !important;
+  outline: none !important;
+
+}
+
+.antmodalclassName .ant-modal-content {
+  background-color: #ececec !important;
+  border-radius: 8px 8px 0 0;
+  /* top-left and top-right rounded */
+  overflow: hidden;
+}
+
+.antmodalclassName .ant-modal-header {
+  background-color: transparent !important;
+  border-radius: 8px 8px 0 0;
+  /* top-left and top-right rounded */
+  overflow: hidden;
+}
+
+.custom-collapse .ant-collapse-content>.ant-collapse-content-box {
+  background-color: #ececec;
+  /* light red background */
+  padding: 12px;
+  border-radius: 8px 8px 0 0;
+  /* top-left and top-right rounded */
+  overflow: hidden;
+}
+
+.ant-input-number {
+  border-radius: 12px !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+.ant-input-number-input {
+
+  width: 100% !important;
+  height: 42px !important;
+  margin-top: 2px !important;
+  border: 0px;
+  background-color: #ffffff;
+}
+
+.inputAntdSelectClassNameFilter {
+  width: 180px !important;
+  height: 35px !important;
+
+
+}
+
+.inputAntdSelectClassNameFilter .ant-select-selector {
+  border-radius: 5px !important;
+  border: 1px solid #d9d9d9 !important;
+  /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important; */
+}
+
+.inputAntdSelectClassNameFilterReport {
+  width: 180px !important;
+  height: 35px !important;
+  max-width: 100% !important;
+}
+
+.inputAntdSelectClassNameFilterReport .ant-select-selector {
+  border-radius: 2px !important;
+  /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important; */
+  border: 1px solid #d9d9d9 !important;
+}
+
+.inputAntdMultiSelectClassNameFilterReport {
+  min-width: 180px !important;
+  min-height: 35px !important;
+  max-width: 100% !important;
+  padding-left: 5px !important;
+}
+
+.inputAntdMultiSelectClassNameFilterReport .ant-select-selector {
+  border-radius: 2px !important;
+  min-height: 35px !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+.custom-collapse .ant-collapse-item:first-child .ant-collapse-header {
+  border-radius: 8px 8px 0 0;
+}
+
+.inputAntdMultiSelectClassNameFilterReport .ant-select-selector {
+  border-radius: 2px !important;
+  min-height: 35px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+.custom-collapse .ant-collapse-header {
+  background-color: #074173;
+}
+
+.custom-collapse .ant-collapse-body {
+  color: '#ececec';
+}
+
+.inputCalanderClassNameReport {
+  width: 180px !important;
+  height: 35px !important;
+  border: none !important;
+  border-radius: 5px !important;
+  border: 1px solid #d9d9d9 !important;
+  /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important; */
+
+}
+
+/* Force calendar panels to stack vertically */
+.vertical-range-calendar .ant-picker-panels {
+  display: flex;
+  flex-direction: row;
+  /* default horizontal */
+}
+
+/* Mobile View (max-width: 768px) — stacked vertically */
+@media (max-width: 768px) {
+  .vertical-range-calendar .ant-picker-panels {
+    flex-direction: column !important;
+  }
+
+  /* Spacing between calendars */
+  .vertical-range-calendar .ant-picker-panels>*:not(:last-child) {
+    margin-bottom: 12px;
+  }
+
+  /* Make the dropdown fit the mobile screen */
+  .vertical-range-calendar.ant-picker-dropdown {
+    left: 10px !important;
+    right: 10px !important;
+    width: auto !important;
+  }
+}
+
+/*------------------table classNames-----------------*/
+
+.tableData {
+
+  padding: 0.5rem;
+  font-size: 12.8px;
+  text-align: left;
+}
+
+.tableHead {
+  white-space: nowrap;
+  padding: 0.5rem;
+  text-align: left;
+  font-size: 12px;
+}
+
+
+@media (max-width: 768px) {
+  .inputAntdSelectClassNameFilterReport {
+    width: 100% !important;
+  }
+
+  .inputAntdMultiSelectClassNameFilterReport {
+    width: 100% !important;
+  }
+
+  .inputAntdSelectClassNameFilter {
+    width: 100% !important;
+  }
+
+  .inputCalanderClassNameReport {
+    width: 100% !important;
+  }
+
+}
+
+
+
+
+
+/*---------------------------------------project dashboard css -----------------------------*/
+.project-dashboard-container {
+  padding: 20px;
+}
+
+.dashboard-card {
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.09);
+  transition: all 0.3s ease;
+}
+
+.dashboard-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.chart-card {
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.09);
+}
+
+.money-statistic .ant-statistic-content-prefix {
+  font-size: 16px;
+  margin-right: 4px;
+}
+
+.ant-tabs-tab {
+  display: flex;
+  align-items: center;
+}
+
+.ant-tabs-tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ant-table-row {
+  cursor: pointer;
+}
+
+.ant-table-row:hover {
+  background-color: #fafafa;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .project-dashboard-container {
+    padding: 10px;
+  }
+
+  .dashboard-card {
+    margin-bottom: 16px;
+  }
+}

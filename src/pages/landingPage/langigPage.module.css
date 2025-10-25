@@ -1,0 +1,257 @@
+/* Base Styles */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 10px;
+}
+
+/* Hero Section */
+.hero {
+  padding: 20px 0 100px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+.heroContent {
+  max-width: 600px;
+  margin-bottom: 50px;
+}
+
+.hero h1 {
+  font-size: 3.5rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+  line-height: 1.2;
+}
+
+.hero h1 span {
+  color: #4361ee;
+}
+
+.subtitle {
+  font-size: 1.2rem;
+  color: #6c757d;
+  margin-bottom: 30px;
+}
+
+.ctaButtons {
+  display: flex;
+  gap: 15px;
+}
+
+.primaryButton {
+  display: inline-flex;
+  align-items: center;
+  background-color: #4361ee;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.primaryButton:hover {
+  background-color: #3a56d4;
+  transform: translateY(-2px);
+}
+
+.heroImage {
+  margin-top: 50px;
+}
+
+.dashboardPreview {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.dashboardTabs {
+  display: flex;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  padding: 15px 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #6c757d;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.tab svg {
+  margin-right: 8px;
+}
+
+.tabActive {
+  color: #4361ee;
+  background-color: white;
+  border-bottom: 2px solid #4361ee;
+}
+
+.dashboardContent {
+  display: flex;
+  padding: 30px;
+  min-height: 400px;
+}
+
+.featureHighlight {
+  flex: 1;
+  padding-right: 30px;
+}
+
+.featureHighlight h3 {
+  font-size: 1.8rem;
+  margin-bottom: 15px;
+  color: #4361ee;
+}
+
+.featureHighlight p {
+  margin-bottom: 20px;
+  color: #6c757d;
+}
+
+.featureHighlight ul {
+  list-style: none;
+  margin-bottom: 30px;
+}
+
+.featureHighlight li {
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+}
+
+.checkIcon {
+  margin-right: 10px;
+  color: #4cc9f0;
+}
+
+.dashboardVisual {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+/* Benefits Section */
+.benefitsSection {
+  padding: 100px 0;
+  background-color: #f8f9fa;
+}
+
+.benefitsSection h2 {
+  text-align: center;
+  font-size: 2.5rem;
+  margin-bottom: 15px;
+}
+
+.benefitsSection h2 span {
+  color: #4361ee;
+}
+
+.benefitsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 30px;
+  margin-top: 50px;
+}
+
+.benefitCard {
+  background-color: white;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.benefitCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.benefitIcon {
+  width: 60px;
+  height: 60px;
+  background-color: rgba(67, 97, 238, 0.1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  color: #4361ee;
+}
+
+.benefitCard h3 {
+  font-size: 1.3rem;
+  margin-bottom: 15px;
+}
+
+/* Final CTA */
+.finalCta {
+  padding: 100px 0;
+  background: linear-gradient(135deg, #4361ee 0%, #3f37c9 100%);
+  color: white;
+  text-align: center;
+}
+
+.finalCta h2 {
+  font-size: 2.5rem;
+  margin-bottom: 20px;
+}
+
+.finalCta p {
+  font-size: 1.2rem;
+  max-width: 700px;
+  margin: 0 auto 40px;
+  opacity: 0.9;
+}
+
+/* Responsive Styles */
+@media (max-width: 992px) {
+  .heroContent {
+      max-width: 100%;
+      text-align: center;
+  }
+  
+  .ctaButtons {
+      justify-content: center;
+  }
+  
+  .dashboardContent {
+      flex-direction: column;
+  }
+  
+  .featureHighlight {
+      padding-right: 0;
+      margin-bottom: 30px;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero h1 {
+      font-size: 2.5rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .hero {
+      padding: 150px 0 80px;
+  }
+  
+  .hero h1 {
+      font-size: 2rem;
+  }
+  
+  .ctaButtons {
+      flex-direction: column;
+  }
+}
