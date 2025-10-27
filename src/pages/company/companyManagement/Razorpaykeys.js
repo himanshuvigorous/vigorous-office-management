@@ -158,7 +158,7 @@ function Razorpaykeys({ companyDetailsData }) {
           <label htmlFor="current-password" className="block text-sm font-medium text-black">
             Current Password
           </label>
-          <input.Password
+          <Input.Password
             id="current-password"
             placeholder="Enter your current password"
             value={currentPassword}
