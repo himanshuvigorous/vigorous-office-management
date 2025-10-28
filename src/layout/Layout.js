@@ -390,6 +390,7 @@ const ProposalListEmployee = lazy(() => import('../pages/client/proposal/Proposa
 const ManagerInvoiceList = lazy(() => import('../pages/financeManagement/invoice/ManagerInvoiceList'))
 const ManagerofficeVisit = lazy(() => import('../pages/visitorManagement/visitor/ManagerofficeVisit'))
 const ManagerClientVisit = lazy(() => import('../pages/visitorManagement/client_visit/ManagerClientVisit'))
+const VigorousprojectVendorTransactionReport = lazy(() => import('../pages/Project management/Vigovendor/VigorousprojectVendorTransactionReport'))
 
 
 
@@ -899,6 +900,7 @@ function Layout() {
           <Route path="/project-vendor/:pageId?" element={<VigoVendorList />} />
           <Route path="/project-vendor/create" element={<CreateVigoVendor />} />
           <Route path="/project-vendor/edit/:vendorIdEnc" element={<UpdateVigoVendor />} />
+          <Route path="/project-vendor-report/:vendorIdEnc?" element={<VigorousprojectVendorTransactionReport />} />
 
 
           {/* project task */}

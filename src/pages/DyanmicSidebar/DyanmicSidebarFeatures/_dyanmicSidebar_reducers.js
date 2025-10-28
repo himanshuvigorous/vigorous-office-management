@@ -46,7 +46,7 @@ export const dynamicSidebarSearch = createAsyncThunk(
 
     try {
       const user = await dyanmicSidebarServices.dynamicSidebarSearch(userData);
-    
+
       return user;
     } catch (error) {
       // showNotification({
@@ -64,7 +64,7 @@ export const getsidebarById = createAsyncThunk(
 
     try {
       const user = await dyanmicSidebarServices.getsidebarById(userData);
-    
+
       return user;
     } catch (error) {
       showNotification({
@@ -80,8 +80,29 @@ export const dynamicSidebarCreate = createAsyncThunk(
   async (userData, { rejectWithValue }) => {
 
     try {
-  
+
       const user = await dyanmicSidebarServices.dynamicSidebarCreate(userData);
+      showNotification({
+        message: user?.userinfo?.message,
+        type: 'success',
+      });
+      return user;
+    } catch (error) {
+      showNotification({
+        message: error?.data?.message,
+        type: 'error',
+      });
+      return rejectWithValue(error.message);
+    }
+  }
+);
+export const dynamicSidebarOrder = createAsyncThunk(
+  "user/dynamicSidebarOrder",
+  async (userData, { rejectWithValue }) => {
+
+    try {
+
+      const user = await dyanmicSidebarServices.dynamicSidebarOrder(userData);
       showNotification({
         message: user?.userinfo?.message,
         type: 'success',
@@ -101,7 +122,7 @@ export const dynamicPageUpdate = createAsyncThunk(
   async (userData, { rejectWithValue }) => {
 
     try {
-  
+
       const user = await dyanmicSidebarServices.dynamicPageUpdate(userData);
       showNotification({
         message: user?.userinfo?.message,
@@ -140,7 +161,7 @@ const planSlice = createSlice({
   name: 'Plan',
   initialState: {
   },
-  reducers: { 
+  reducers: {
     setFinalSidebarData: (state, action) => {
       state.finalSidebarData = action.payload;
     },
@@ -209,6 +230,17 @@ const planSlice = createSlice({
         state.sidebarUpdateData = action.payload;
       })
       .addCase(dynamicPageUpdate.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(dynamicSidebarOrder.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(dynamicSidebarOrder.fulfilled, (state, action) => {
+        state.loading = false;
+        state.sidebarUpdateData = action.payload;
+      })
+      .addCase(dynamicSidebarOrder.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })

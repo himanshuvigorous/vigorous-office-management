@@ -100,6 +100,7 @@ import projectTask from '../pages/Project management/ProjecttaskMagement/Project
 import EmployeLedger from '../pages/financeManagement/EmployeeAdvanceListandLedger/employeLedgerFeature/_employeLedger_reducers';
 import wfhManager from '../pages/global/other/wfhManager/wfhManagerfeature/_wfhManager_reducers'
 import wfhRequest from '../pages/hr/leaveRequestManagment/LeaveRequestModule/WFHRequestFeatures/_wfh_request_reducers'
+import vigoVendor from '../pages/Project management/Vigovendor/VigovendorFeatures/_vigo_vendor_reducers';
 
 
 const rootReducer = combineReducers({
@@ -205,6 +206,7 @@ const rootReducer = combineReducers({
   EmployeLedger:EmployeLedger,
   wfhManager:wfhManager,
   wfhRequest:wfhRequest,
+  vigoVendor:vigoVendor,
 });
 
 export default rootReducer;

@@ -26,6 +26,7 @@ import { accountantSearch } from "../accountantmanagement/accountManagentFeature
 import { createfundTransfer } from "./fundTransferFeatures/_fundTransfer_reducers";
 import { FaRegFile, FaTimes } from "react-icons/fa";
 import { expenseTypeSearch } from "../../global/other/ExpenseHead/expenseTypeFeature/_expenseType_reducers";
+import { vendorSearch } from "../../financeManagement/vendor/vendorFeatures/_vendor_reducers";
 
 const CreateFundtransfer = () => {
   const { loading: FundtransferLoading } = useSelector(
@@ -47,6 +48,7 @@ const CreateFundtransfer = () => {
   const navigate = useNavigate();
   const { companyList, companyListLoading } = useSelector((state) => state.company);
   const { branchList, branchListloading } = useSelector((state) => state.branch);
+  const { vendorDataList, loading: vendorListLoading } = useSelector(state => state.vendor)
   const userInfoglobal = JSON.parse(
     localStorage.getItem(`user_info_${domainName}`)
   );
@@ -86,12 +88,12 @@ const CreateFundtransfer = () => {
     name: "isExpense",
     defaultValue: "",
   });
-    const senderAccountentId = useWatch({
+  const senderAccountentId = useWatch({
     control,
     name: "senderAccountentId",
     defaultValue: "",
   });
-    const receiverAccountentId = useWatch({
+  const receiverAccountentId = useWatch({
     control,
     name: "receiverAccountentId",
     defaultValue: "",
@@ -136,8 +138,8 @@ const CreateFundtransfer = () => {
         ...reqpayload,
         senderAccountentId: data?.senderAccountentId,
         receiverAccountentId: data?.receiverAccountentId,
-        senderBankAccId:data?.senderBankAccId,
-        receiverBankAccId:data?.receiverBankAccId,
+        senderBankAccId: data?.senderBankAccId,
+        receiverBankAccId: data?.receiverBankAccId,
         senderUserId: accountants?.find((acc) => acc?._id === data?.senderAccountentId)?.accountentData?._id,
         receiverUserId: accountants?.find((acc) => acc?._id === data?.receiverAccountentId)?.accountentData?._id,
       };
@@ -145,17 +147,18 @@ const CreateFundtransfer = () => {
       reqpayload = {
         ...reqpayload,
         receiverAccountentId: data?.receiverAccountentId,
-         receiverBankAccId:data?.receiverBankAccId,
+        receiverBankAccId: data?.receiverBankAccId,
         receiverUserId: accountants?.find((acc) => acc?._id === data?.receiverAccountentId)?.accountentData?._id,
       };
     } else if (data?.transferType === "debit") {
       reqpayload = {
         ...reqpayload,
         senderAccountentId: data?.senderAccountentId,
-        senderBankAccId:data?.senderBankAccId,
+        senderBankAccId: data?.senderBankAccId,
         senderUserId: accountants?.find((acc) => acc?._id === data?.senderAccountentId)?.accountentData?._id,
         isExpense: data?.isExpense === "Yes" ? true : false,
-        expenseId: data?.expencehead?.value || ""
+        expenseId: data?.expencehead?.value || "",
+        vendorId: data?.vendorId || "",
       };
     }
 
@@ -231,6 +234,19 @@ const CreateFundtransfer = () => {
     }))
   }, []);
 
+  const handleFocusVendor = () => {
+    dispatch(
+      vendorSearch({
+        companyId: userInfoglobal?.userType === "admin" ? CompanyId : userInfoglobal?.userType === "company" ? userInfoglobal?._id : userInfoglobal?.companyId,
+        branchId: userInfoglobal?.userType === "company" || userInfoglobal?.userType === "admin" || userInfoglobal?.userType === "companyDirector" ? BranchId : userInfoglobal?.userType === "companyBranch" ? userInfoglobal?._id : userInfoglobal?.branchId,
+        isPagination: false,
+        text: "",
+        sort: true,
+        status: true,
+        groupId: "",
+      })
+    );
+  };
   return (
     <GlobalLayout>
       <div className="gap-4">
@@ -395,7 +411,7 @@ const CreateFundtransfer = () => {
                   <Controller
                     control={control}
                     name="senderBankAccId"
-                 
+
                     render={({ field }) => (
                       <Select
                         {...field}
@@ -403,9 +419,9 @@ const CreateFundtransfer = () => {
                         className={`${inputAntdSelectClassName} `}
                       >
                         <Select.Option value="">Select Bank</Select.Option>
-                        {accountants?.find((item)=>item?._id === senderAccountentId)?.bankAccountData &&
-                          accountants?.find((item)=>item?._id === senderAccountentId)?.bankAccountData.length > 0 &&
-                          accountants?.find((item)=>item?._id === senderAccountentId).bankAccountData.map((type) => (
+                        {accountants?.find((item) => item?._id === senderAccountentId)?.bankAccountData &&
+                          accountants?.find((item) => item?._id === senderAccountentId)?.bankAccountData.length > 0 &&
+                          accountants?.find((item) => item?._id === senderAccountentId).bankAccountData.map((type) => (
                             <Select.Option key={type._id} value={type._id}>
                               {optionLabelForBankSlect(type)}
                             </Select.Option>
@@ -424,52 +440,52 @@ const CreateFundtransfer = () => {
 
             {/* Receiver Accountent - Only show for internal and credit */}
             {(TransferType === "internal" || TransferType === "credit") && (
-              <> 
-              <div className="w-full">
-                <label className={`${inputLabelClassName}`}>
-                  Receiver Accountent <span className="text-red-600">*</span>
-                </label>
-                <Controller
-                  name="receiverAccountentId"
-                  control={control}
-                  rules={{
-                    required: TransferType === "internal" || TransferType === "credit"
-                      ? "Receiver Accountent is required"
-                      : false
-                  }}
-                  render={({ field }) => (
-                    <Select
-                      placeholder="Select Receiver Accountent"
-                      loading={loadingAccountants}
-                      {...field}
-                      showSearch
-                      getPopupContainer={(trigger) => trigger.parentNode}
-                      optionFilterProp="children"
-                      className={`${inputAntdSelectClassName} `}
-                      filterOption={(input, option) =>
-                        option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                      }
-                    >
-                      {accountants?.map(acc => (
-                        <Select.Option key={acc?._id} value={acc?._id}>
-                          {acc?.accountentData?.fullName}
-                        </Select.Option>
-                      ))}
-                    </Select>
+              <>
+                <div className="w-full">
+                  <label className={`${inputLabelClassName}`}>
+                    Receiver Accountent <span className="text-red-600">*</span>
+                  </label>
+                  <Controller
+                    name="receiverAccountentId"
+                    control={control}
+                    rules={{
+                      required: TransferType === "internal" || TransferType === "credit"
+                        ? "Receiver Accountent is required"
+                        : false
+                    }}
+                    render={({ field }) => (
+                      <Select
+                        placeholder="Select Receiver Accountent"
+                        loading={loadingAccountants}
+                        {...field}
+                        showSearch
+                        getPopupContainer={(trigger) => trigger.parentNode}
+                        optionFilterProp="children"
+                        className={`${inputAntdSelectClassName} `}
+                        filterOption={(input, option) =>
+                          option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                        }
+                      >
+                        {accountants?.map(acc => (
+                          <Select.Option key={acc?._id} value={acc?._id}>
+                            {acc?.accountentData?.fullName}
+                          </Select.Option>
+                        ))}
+                      </Select>
+                    )}
+                  />
+                  {errors.receiverAccountentId && (
+                    <p className="text-red-500 text-sm">{errors.receiverAccountentId.message}</p>
                   )}
-                />
-                {errors.receiverAccountentId && (
-                  <p className="text-red-500 text-sm">{errors.receiverAccountentId.message}</p>
-                )}
-              </div>
-               <div className="">
+                </div>
+                <div className="">
                   <label className={`${inputLabelClassName}`}>
                     Reciever Bank
                   </label>
                   <Controller
                     control={control}
                     name="receiverBankAccId"
-                 
+
                     render={({ field }) => (
                       <Select
                         {...field}
@@ -477,9 +493,9 @@ const CreateFundtransfer = () => {
                         className={`${inputAntdSelectClassName} `}
                       >
                         <Select.Option value="">Select Bank</Select.Option>
-                        {accountants?.find((item)=>item?._id === receiverAccountentId)?.bankAccountData &&
-                          accountants?.find((item)=>item?._id === receiverAccountentId)?.bankAccountData.length > 0 &&
-                          accountants?.find((item)=>item?._id === receiverAccountentId).bankAccountData.map((type) => (
+                        {accountants?.find((item) => item?._id === receiverAccountentId)?.bankAccountData &&
+                          accountants?.find((item) => item?._id === receiverAccountentId)?.bankAccountData.length > 0 &&
+                          accountants?.find((item) => item?._id === receiverAccountentId).bankAccountData.map((type) => (
                             <Select.Option key={type._id} value={type._id}>
                               {optionLabelForBankSlect(type)}
                             </Select.Option>
@@ -542,6 +558,42 @@ const CreateFundtransfer = () => {
               {errors.isExpense && (
                 <p className="text-red-500 text-sm">
                   {errors.isExpense.message}
+                </p>
+              )}
+            </div>}
+            {TransferType === "debit" && <div className="">
+              <label className={`${inputLabelClassName}`}>
+                Vendor
+              </label>
+
+              <Controller
+                control={control}
+                name="vendorId"
+
+                render={({ field }) => (
+                  <Select
+                    {...field}
+                    defaultValue={""}
+                    className={`${inputAntdSelectClassName} `}
+                    onFocus={handleFocusVendor}
+                    showSearch
+                    filterOption={(input, option) =>
+                      String(option?.children).toLowerCase().includes(input.toLowerCase())
+                    }
+                  >
+                    <Select.Option value="">Select Vendor</Select.Option>
+                    {vendorListLoading ? <Select.Option disabled>
+                      <ListLoader />
+                    </Select.Option> : (vendorDataList?.map((elment, index) => (
+                      <option value={elment?._id}>{elment?.fullName}</option>
+                    )))}
+                  </Select>
+                )}
+              />
+
+              {errors.vendorId && (
+                <p className="text-red-500 text-sm">
+                  {errors.vendorId.message}
                 </p>
               )}
             </div>}

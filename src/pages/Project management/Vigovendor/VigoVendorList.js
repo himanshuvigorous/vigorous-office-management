@@ -11,13 +11,13 @@ import { domainName, formatAddress, inputAntdSelectClassNameFilter, inputClassNa
 import CustomPagination from "../../../component/CustomPagination/CustomPagination"
 import { branchSearch } from "../../branch/branchManagement/branchFeatures/_branch_reducers";
 import { companySearch } from "../../company/companyManagement/companyFeatures/_company_reducers";
-import Loader from "../../../global_layouts/Loader/Loader";
 import { getVendorList, vendorSearch, deleteVendorFunc } from "./VigovendorFeatures/_vigo_vendor_reducers";
 import { Select, Tooltip } from "antd";
 import usePermissions from "../../../config/usePermissions";
 import Loader2 from "../../../global_layouts/Loader/Loader2";
 import dayjs from "dayjs";
 import ListLoader from "../../../global_layouts/ListLoader";
+import { BsEye } from "react-icons/bs";
 
 function VigoVendorList() {
     const { register, control, setValue, formState: { errors } } = useForm();
@@ -313,6 +313,10 @@ function VigoVendorList() {
                                     Mobile Number
                                 </th>
                                 <th className='border-none p-2 whitespace-nowrap'>
+                                Total Transaction 
+                                                                </th>
+
+                                <th className='border-none p-2 whitespace-nowrap'>
                                     Created At
                                 </th>
                                 <th className='border-none p-2 whitespace-nowrap'>
@@ -344,6 +348,7 @@ function VigoVendorList() {
                                             <td className='whitespace-nowrap border-none p-2 '>{element?.fullName ?? "-"}</td>
                                             <td className='whitespace-nowrap border-none p-2 '>{element?.email ?? "-"}</td>
                                             <td className='whitespace-nowrap border-none p-2 '>{element?.mobile?.code + element?.mobile?.number}</td>
+                                            <td className='whitespace-nowrap border-none p-2 text-green-500 font-semibold '>{element?.projectAmount ? `₹ ${Number(element?.projectAmount).toFixed(2)}` : "-"}</td>
                                             
                                             <td className='whitespace-nowrap border-none p-2 '>
                                                 {dayjs(element?.createdAt).format('DD-MM-YYYY hh:mm a') ?? "-"}
@@ -375,6 +380,16 @@ function VigoVendorList() {
                                                             <RiDeleteBin5Line className='text-red-600 hover:text-red-500' size={16} />
                                                         </button>
                                                     </Tooltip>}
+                                                    
+                                                    <Tooltip placement="topLeft"  title='Edit'>
+                                                        <button
+                                                            onClick={() => {
+                                                                navigate(`/admin/project-vendor-report/${encrypt(element?._id)}`);
+                                                            }}
+                                                            className="px-2 py-1.5 text-xs rounded-md bg-transparent border border-muted" type="button">
+                                                            <BsEye className=' hover:text-[#337ab7] text-[#3c8dbc]' size={16} />
+                                                        </button>
+                                                    </Tooltip>
                                                 </span>
                                             </td>}
                                         </tr>

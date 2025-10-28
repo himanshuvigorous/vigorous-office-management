@@ -43,6 +43,17 @@ async function getVendorDetails(data) {
     return Promise.reject(error);
   }
 }
+async function getvendorFundOrPurchaseReport(data) {
+
+  try {
+    const response = await apiCall("POST", "vendor/vendorFundOrPurchaseReport", data);
+    return response;
+  } catch (error) {
+    console.error("Vendor:", error);
+    return Promise.reject(error);
+  }
+}
+
 async function createVendorFunc(data) {
 
   try {
@@ -81,4 +92,5 @@ export const vendorServices = {
   updateVendorFunc,
   deleteVendorFunc,
   vendorSearch,
+  getvendorFundOrPurchaseReport
 };

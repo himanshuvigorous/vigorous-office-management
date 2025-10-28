@@ -2,296 +2,767 @@ import { useNavigate } from "react-router-dom";
 import GlobalLayout from "../../global_layouts/GlobalLayout/GlobalLayout";
 import { useDispatch, useSelector } from "react-redux";
 import React, { useEffect, useState } from "react";
-import Swal from "sweetalert2";
 import { encrypt } from "../../config/Encryption";
-import { FaPenToSquare, FaPlus } from "react-icons/fa6";
-import { HiOutlineFilter } from "react-icons/hi";
-import { RiDeleteBin5Line } from "react-icons/ri";
-import Loader from "../../global_layouts/Loader/Loader";
-import {
-  dynamicSidebarDelete,
-  getsidebarList,
-  getviewFinalsidebarList,
-} from "./DyanmicSidebarFeatures/_dyanmicSidebar_reducers";
-import CustomPagination from "../../component/CustomPagination/CustomPagination";
+import {dynamicSidebarDelete,getviewFinalsidebarList } from "./DyanmicSidebarFeatures/_dyanmicSidebar_reducers";
+import { Button, Modal, Space, Table, Tooltip, Typography, message } from "antd";
+import { PlusOutlined, EditOutlined, DeleteOutlined, MinusOutlined, PlusCircleOutlined, ExclamationCircleFilled, DragOutlined, SaveOutlined } from '@ant-design/icons';
+import { domainName } from "../../constents/global";
+import { DndContext, DragOverlay } from '@dnd-kit/core';
+import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
+import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
+import DraggableRow from './DraggableRow';
+const { confirm } = Modal;
 
-function DyanmicSidebar() {
+const DyanmicSidebar = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { sidebarListData, totalPlanCount, sidebarViewData, loading } = useSelector(
-    (state) => state.dynamicSidebar
+  const [isReorderMode, setIsReorderMode] = useState(false);
+  const [activeId, setActiveId] = useState(null);
+  const [reorderedData, setReorderedData] = useState([]);
+  
+  const userInfoglobal = JSON.parse(
+    localStorage.getItem(`user_info_${domainName}`)
   );
-
-  const [currentPage, setCurrentPage] = useState(1);
-
-  const [expandedRow, setExpandedRow] = useState(null);
-
-  const toggleRow = (index) => {
-    setExpandedRow(expandedRow === index ? null : index);
-  };
-
-  const onPaginationChange = (page) => {
-    setCurrentPage(page);
-  };
-
-  const limit = 10;
+  
+  const { sidebarViewData, loading } = useSelector((state) => ({
+    sidebarViewData: state.dynamicSidebar.sidebarViewData || [],
+    loading: state.dynamicSidebar.loading || false,
+  }));
 
   useEffect(() => {
-    getDataList();
+    if(userInfoglobal?.userType == "admin"){
+      getDataList();
+    } else{
+      localStorage.clear()
+      window.location.href = "/"
+        if (window.ReactNativeWebView) {
+          window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'LOGOUT' }));
+        }
+    }
   }, []);
-  const getDataList = () => {
-    dispatch(getsidebarList());
+
+  useEffect(() => {
+    setReorderedData(sidebarViewData);
+  }, [sidebarViewData]);
+
+  const getDataList = async() => {
+    await dispatch(getviewFinalsidebarList());
   };
+
   const handleDelete = (id) => {
-    let reqData = {
-      _id: id,
-    };
-    Swal.fire({
-      title: "Warning",
-      text: "Are you sure you want to delete!",
-      icon: "warning",
-      showCancelButton: true,
-      cancelButtonText: "No",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        dispatch(dynamicSidebarDelete(reqData)).then((data) => {
-          getDataList();
-          dispatch(getviewFinalsidebarList());
+    confirm({
+      title: 'Are you sure you want to delete this item?',
+      icon: <ExclamationCircleFilled />,
+      content: 'This action cannot be undone.',
+      okText: 'Yes, delete it',
+      okType: 'danger',
+      cancelText: 'No, cancel',
+      onOk() {
+        return new Promise((resolve) => {
+          dispatch(dynamicSidebarDelete({ _id: id })).then(() => {
+            getDataList();
+            resolve();
+          });
         });
-      }
+      },
     });
   };
 
-
-
-
-
-  const renderSubPages = (subPages, level = 1) => {
-    return subPages?.map((subPage, subIndex) => (
-      <React.Fragment key={subPage._id}>
-        <tr
-          className={`border-b-[1px] border-[#DDDDDD] text-[#374151] text-[14px] ${subIndex % 2 === 0 ? "bg-[#e9ecef]/80" : "bg-white"
-            }`}
-        >
-          <td className={`whitespace-nowrap border-none p-2 pl-${level * 2}`}>
-            {subIndex + 1}
-          </td>
-          <td className="whitespace-nowrap border-none p-2">
-            {subPage?.name ?? "-"}
-          </td>
-          <td className="whitespace-nowrap border-none p-2">
-            {subPage?.slug ?? "-"}
-          </td>
-          <td className="whitespace-nowrap border-none p-2">
-            <span className="py-1.5 flex justify-start items-center space-x-2">
-              <button
-                onClick={() => {
-                  navigate(
-                    `/admin/dynamic-sidebar/create/${encrypt(subPage?._id)}`
-                  );
-                }}
-                className="px-2 py-1.5 text-xs rounded-md bg-transparent border border-muted"
-                type="button"
-              >
-                <FaPlus
-                  className=" hover:text-[#337ab7] text-[#3c8dbc]"
-                  size={16}
-                />
-              </button>
-              <button
-                onClick={() => {
-                  navigate(
-                    `/admin/dynamic-sidebar/edit/${encrypt(subPage?._id)}`
-                  );
-                }}
-                className="px-2 py-1.5 text-xs rounded-md bg-transparent border border-muted"
-                type="button"
-              >
-                <FaPenToSquare
-                  className=" hover:text-[#337ab7] text-[#3c8dbc]"
-                  size={16}
-                />
-              </button>
-              <button
-                onClick={() => handleDelete(subPage?._id)}
-                className="px-2 py-1.5 rounded-md bg-transparent border border-muted"
-                type="button"
-              >
-                <RiDeleteBin5Line
-                  className="text-red-600 hover:text-red-500"
-                  size={16}
-                />
-              </button>
-            </span>
-          </td>
-        </tr>
-
-        {/* Render subChildPages if any */}
-        {subPage.subChildPages && (
-          <tr>
-            <td colSpan={4}>
-              <table className="w-full max-w-full rounded-xl overflow-hidden">
-                <tbody>
-                  {renderSubPages(subPage.subChildPages, level + 1)}
-                </tbody>
-              </table>
-            </td>
-          </tr>
-        )}
-      </React.Fragment>
-    ));
+  // Drag and Drop Handlers for main items
+  const handleDragStart = (event) => {
+    setActiveId(event.active.id);
   };
 
+  const handleDragEnd = (event) => {
+    const { active, over } = event;
+    
+    // Only proceed if there's a valid over target and it's different from active
+    if (over && active.id !== over.id) {
+      setReorderedData((previousData) => {
+        const activeIndex = previousData.findIndex((item) => item._id === active.id);
+        const overIndex = previousData.findIndex((item) => item._id === over.id);
+        
+        if (activeIndex !== -1 && overIndex !== -1) {
+          return arrayMove(previousData, activeIndex, overIndex);
+        }
+        return previousData;
+      });
+    }
+    
+    setActiveId(null);
+  };
+
+  // Handle reordering of subpages
+  const handleSubpageReorder = (parentId, newSubpages) => {
+    setReorderedData(prevData => 
+      prevData.map(item => 
+        item._id === parentId 
+          ? { ...item, subPages: newSubpages }
+          : item
+      )
+    );
+  };
+
+  // Handle reordering of subchild pages
+  const handleSubchildReorder = (parentId, subpageId, newSubchildPages) => {
+    setReorderedData(prevData => 
+      prevData.map(item => {
+        if (item._id === parentId) {
+          return {
+            ...item,
+            subPages: item.subPages.map(subpage => 
+              subpage._id === subpageId 
+                ? { ...subpage, subChildPages: newSubchildPages }
+                : subpage
+            )
+          };
+        }
+        return item;
+      })
+    );
+  };
+
+  // Safe drag end handler for nested tables
+  const createSafeDragEndHandler = (items, onReorder) => (event) => {
+    const { active, over } = event;
+    
+    // Only proceed if there's a valid over target and it's different from active
+    if (over && active.id !== over.id) {
+      const activeIndex = items.findIndex(item => item._id === active.id);
+      const overIndex = items.findIndex(item => item._id === over.id);
+      
+      if (activeIndex !== -1 && overIndex !== -1) {
+        const newItems = arrayMove(items, activeIndex, overIndex);
+        onReorder(newItems);
+      }
+    }
+    setActiveId(null);
+  };
+
+  // Flatten all data and generate payload
+  const generateOrderPayload = () => {
+    const payload = [];
+
+    // Process main items
+    reorderedData.forEach((mainItem, mainIndex) => {
+      payload.push({
+        pageId: mainItem._id,
+        orderBy: mainIndex + 1,
+        level: 'parent'
+      });
+
+      // Process subpages
+      if (mainItem.subPages && mainItem.subPages.length > 0) {
+        mainItem.subPages.forEach((subItem, subIndex) => {
+          payload.push({
+            pageId: subItem._id,
+            orderBy: subIndex + 1,
+            parentId: mainItem._id,
+            level: 'subpage'
+          });
+
+          // Process subchild pages
+          if (subItem.subChildPages && subItem.subChildPages.length > 0) {
+            subItem.subChildPages.forEach((childItem, childIndex) => {
+              payload.push({
+                pageId: childItem._id,
+                orderBy: childIndex + 1,
+                parentId: subItem._id,
+                level: 'subchild'
+              });
+            });
+          }
+        });
+      }
+    });
+
+    return payload;
+  };
+
+  // Submit the new order
+  const handleSubmitOrder = async () => {
+    try {
+      const orderPayload = generateOrderPayload();
+      
+      console.log('Order Payload:', orderPayload); // For debugging
+      
+      // await dispatch(updateSidebarOrder({ sidebarPages: orderPayload }));
+      message.success('Sidebar order updated successfully!');
+      setIsReorderMode(false);
+      getDataList(); // Refresh data
+    } catch (error) {
+      message.error('Failed to update sidebar order');
+      console.error('Error updating order:', error);
+    }
+  };
+
+  const cancelReorder = () => {
+    setReorderedData(sidebarViewData);
+    setIsReorderMode(false);
+  };
+
+  // Normal mode columns (with actions)
+  const columns = [
+    {
+      title: 'S.No.',
+      key: 'index',
+      width: '10%',
+      render: (_, __, index) => index + 1,
+    },
+    {
+      title: 'Name',
+      dataIndex: 'name',
+      key: 'name',
+      render: (text) => text || '-',
+    },
+    {
+      title: 'Slug',
+      dataIndex: 'slug',
+      key: 'slug',
+      render: (text) => text || '-',
+    },
+    {
+      title: 'Actions',
+      key: 'actions',
+      width: '20%',
+      render: (_, record) => (
+        <Space size="middle">
+          <Tooltip placement="topLeft" title="Add Child">
+            <Button 
+              type="text" 
+              icon={<PlusOutlined />}
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/admin/dynamic-sidebar/create/${encrypt(record._id)}`);
+              }}
+            />
+          </Tooltip>
+          <Tooltip placement="topLeft" title="Edit">
+            <Button 
+              type="text" 
+              icon={<EditOutlined />}
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/admin/dynamic-sidebar/edit/${encrypt(record._id)}`);
+              }}
+            />
+          </Tooltip>
+          <Tooltip placement="topLeft" title="Delete">
+            <Button 
+              type="text" 
+              danger 
+              icon={<DeleteOutlined />}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDelete(record._id);
+              }}
+            />
+          </Tooltip>
+        </Space>
+      ),
+    },
+  ];
+
+  // Reorder mode columns (with drag handle)
+  const reorderColumns = [
+    {
+      title: 'Drag',
+      key: 'drag',
+      width: '5%',
+      render: () => (
+        <Tooltip title="Drag to reorder">
+          <DragOutlined style={{ cursor: 'grab', color: '#999' }} />
+        </Tooltip>
+      ),
+    },
+    {
+      title: 'S.No.',
+      key: 'index',
+      width: '8%',
+      render: (_, __, index) => index + 1,
+    },
+    {
+      title: 'Name',
+      dataIndex: 'name',
+      key: 'name',
+      render: (text) => <Typography.Text strong>{text || '-'}</Typography.Text>,
+    },
+    {
+      title: 'Slug',
+      dataIndex: 'slug',
+      key: 'slug',
+      render: (text) => text || '-',
+    },
+  ];
+
+  const subColumns = [
+    {
+      title: 'S.No.',
+      key: 'index',
+      width: '10%',
+      render: (_, __, index) => index + 1,
+    },
+    {
+      title: 'Name',
+      dataIndex: 'name',
+      key: 'name',
+      render: (text) => text || '-',
+    },
+    {
+      title: 'Slug',
+      dataIndex: 'slug',
+      key: 'slug',
+      render: (text) => text || '-',
+    },
+    {
+      title: 'Actions',
+      key: 'actions',
+      width: '20%',
+      render: (_, record) => (
+        <Space size="middle">
+          <Tooltip placement="topLeft" title="Add Child">
+            <Button 
+              type="text" 
+              icon={<PlusOutlined />}
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/admin/dynamic-sidebar/create/${encrypt(record._id)}`);
+              }}
+            />
+          </Tooltip>
+          <Tooltip placement="topLeft" title="Edit">
+            <Button 
+              type="text" 
+              icon={<EditOutlined />}
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/admin/dynamic-sidebar/edit/${encrypt(record._id)}`);
+              }}
+            />
+          </Tooltip>
+          <Tooltip placement="topLeft" title="Delete">
+            <Button 
+              type="text" 
+              danger 
+              icon={<DeleteOutlined />}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDelete(record._id);
+              }}
+            />
+          </Tooltip>
+        </Space>
+      ),
+    },
+  ];
+
+  const reorderSubColumns = [
+    {
+      title: 'Drag',
+      key: 'drag',
+      width: '5%',
+      render: () => (
+        <Tooltip title="Drag to reorder">
+          <DragOutlined style={{ cursor: 'grab', color: '#999' }} />
+        </Tooltip>
+      ),
+    },
+    {
+      title: 'S.No.',
+      key: 'index',
+      width: '8%',
+      render: (_, __, index) => index + 1,
+    },
+    {
+      title: 'Name',
+      dataIndex: 'name',
+      key: 'name',
+      render: (text) => text || '-',
+    },
+    {
+      title: 'Slug',
+      dataIndex: 'slug',
+      key: 'slug',
+      render: (text) => text || '-',
+    },
+  ];
+
+  const nestedSubColumns = [
+    {
+      title: 'S.No.',
+      key: 'index',
+      width: '10%',
+      render: (_, __, index) => index + 1,
+    },
+    {
+      title: 'Name',
+      dataIndex: 'name',
+      key: 'name',
+      render: (text) => text || '-',
+    },
+    {
+      title: 'Slug',
+      dataIndex: 'slug',
+      key: 'slug',
+      render: (text) => text || '-',
+    },
+    {
+      title: 'Actions',
+      key: 'actions',
+      width: '20%',
+      render: (_, record) => (
+        <Space size="middle">
+          <Tooltip placement="topLeft" title="Edit">
+            <Button 
+              type="text" 
+              icon={<EditOutlined />}
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/admin/dynamic-sidebar/edit/${encrypt(record._id)}`);
+              }}
+            />
+          </Tooltip>
+          <Tooltip placement="topLeft" title="Delete">
+            <Button 
+              type="text" 
+              danger 
+              icon={<DeleteOutlined />}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDelete(record._id);
+              }}
+            />
+          </Tooltip>
+        </Space>
+      ),
+    },
+  ];
+
+  const reorderNestedSubColumns = [
+    {
+      title: 'Drag',
+      key: 'drag',
+      width: '5%',
+      render: () => (
+        <Tooltip title="Drag to reorder">
+          <DragOutlined style={{ cursor: 'grab', color: '#999' }} />
+        </Tooltip>
+      ),
+    },
+    {
+      title: 'S.No.',
+      key: 'index',
+      width: '8%',
+      render: (_, __, index) => index + 1,
+    },
+    {
+      title: 'Name',
+      dataIndex: 'name',
+      key: 'name',
+      render: (text) => text || '-',
+    },
+    {
+      title: 'Slug',
+      dataIndex: 'slug',
+      key: 'slug',
+      render: (text) => text || '-',
+    },
+  ];
+
+  const expandedRowRender = (record) => {
+    if (!record.subPages || record.subPages.length === 0) {
+      return (
+        <div style={{ margin: 0, padding: '8px 16px', background: '#fafafa' }}>
+          <Typography.Text type="secondary">No subpages found</Typography.Text>
+        </div>
+      );
+    }
+
+    if (isReorderMode) {
+      const subpageDragEndHandler = createSafeDragEndHandler(
+        record.subPages,
+        (newSubpages) => handleSubpageReorder(record._id, newSubpages)
+      );
+
+      return (
+        <DndContext 
+          modifiers={[restrictToVerticalAxis]}
+          onDragStart={handleDragStart}
+          onDragEnd={subpageDragEndHandler}
+        >
+          <SortableContext items={record.subPages.map(item => item._id)} strategy={verticalListSortingStrategy}>
+            <Table
+              columns={reorderSubColumns}
+              dataSource={record.subPages}
+              rowKey="_id"
+              pagination={false}
+              size="small"
+              bordered
+              components={{
+                body: {
+                  row: DraggableRow,
+                },
+              }}
+              expandable={{
+                expandedRowRender: (subRecord) => nestedReorderExpandedRowRender(subRecord, record._id),
+                expandIcon: ({ expanded, onExpand, record: subRecord }) => 
+                  subRecord.subChildPages && subRecord.subChildPages.length > 0 ? (
+                    <Button 
+                      type="text" 
+                      size="small"
+                      icon={expanded ? <MinusOutlined /> : <PlusCircleOutlined />}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onExpand(subRecord, e);
+                      }}
+                    />
+                  ) : null,
+              }}
+            />
+          </SortableContext>
+          <DragOverlay>
+            {activeId ? (
+              <Table
+                size="small"
+                dataSource={[record.subPages.find(item => item._id === activeId)]}
+                columns={reorderSubColumns}
+                pagination={false}
+                rowKey="_id"
+              />
+            ) : null}
+          </DragOverlay>
+        </DndContext>
+      );
+    }
+
+    return (
+      <Table
+        columns={subColumns}
+        dataSource={record.subPages}
+        rowKey="_id"
+        pagination={false}
+        size="small"
+        bordered
+        expandable={{
+          expandedRowRender: nestedExpandedRowRender,
+          expandIcon: ({ expanded, onExpand, record: subRecord }) => 
+            subRecord.subChildPages && subRecord.subChildPages.length > 0 ? (
+              <Button 
+                type="text" 
+                size="small"
+                icon={expanded ? <MinusOutlined /> : <PlusCircleOutlined />}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onExpand(subRecord, e);
+                }}
+              />
+            ) : null,
+        }}
+      />
+    );
+  };
+
+  const nestedExpandedRowRender = (record) => {
+    if (!record.subChildPages || record.subChildPages.length === 0) {
+      return (
+        <div style={{ margin: 0, padding: '8px 16px', background: '#fafafa' }}>
+          <Typography.Text type="secondary">No child pages found</Typography.Text>
+        </div>
+      );
+    }
+    return (
+      <Table
+        columns={nestedSubColumns}
+        dataSource={record.subChildPages}
+        rowKey="_id"
+        pagination={false}
+        size="small"
+        bordered
+      />
+    );
+  };
+
+  const nestedReorderExpandedRowRender = (subRecord, parentId) => {
+    if (!subRecord.subChildPages || subRecord.subChildPages.length === 0) {
+      return (
+        <div style={{ margin: 0, padding: '8px 16px', background: '#fafafa' }}>
+          <Typography.Text type="secondary">No child pages found</Typography.Text>
+        </div>
+      );
+    }
+
+    const subchildDragEndHandler = createSafeDragEndHandler(
+      subRecord.subChildPages,
+      (newSubchildPages) => handleSubchildReorder(parentId, subRecord._id, newSubchildPages)
+    );
+
+    return (
+      <DndContext 
+        modifiers={[restrictToVerticalAxis]}
+        onDragStart={handleDragStart}
+        onDragEnd={subchildDragEndHandler}
+      >
+        <SortableContext items={subRecord.subChildPages.map(item => item._id)} strategy={verticalListSortingStrategy}>
+          <Table
+            columns={reorderNestedSubColumns}
+            dataSource={subRecord.subChildPages}
+            rowKey="_id"
+            pagination={false}
+            size="small"
+            bordered
+            components={{
+              body: {
+                row: DraggableRow,
+              },
+            }}
+          />
+        </SortableContext>
+        <DragOverlay>
+          {activeId ? (
+            <Table
+              size="small"
+              dataSource={[subRecord.subChildPages.find(item => item._id === activeId)]}
+              columns={reorderNestedSubColumns}
+              pagination={false}
+              rowKey="_id"
+            />
+          ) : null}
+        </DragOverlay>
+      </DndContext>
+    );
+  };
 
   return (
     <GlobalLayout>
-      {loading ? (
-        <Loader />
-      ) : (
-        <>
-          <div className="w-full">
-            <div className="sm:flex justify-between items-center md:space-y-0 space-y-2 py-1">
-              <div className="md:flex justify-start items-center md:space-x-4 space-x-0 md:space-y-0 space-y-2">
-                <div className="sm:flex justify-start items-center sm:space-x-2 space-x-0 sm:space-y-0 space-y-2">
-                  <div className="flex justify-center items-center space-x-2 bg-white p-2 text-[14px] rounded-md">
-                    <HiOutlineFilter />
-                    <select className="ml-2 p-1 rounded-md outline-none border-none">
-                      <option value="">Title</option>
-                      <option value="A-Z">A-Z</option>
-                      <option value="Z-A">Z-A</option>
-                    </select>
-                  </div>
-                  <div className="flex justify-center items-center space-x-2 bg-white p-2 text-[14px] rounded-md">
-                    <HiOutlineFilter />
-                    <select className="ml-2 p-1 rounded-md outline-none border-none">
-                      <option value="">Price</option>
-                      <option value="High to Low">High to Low</option>
-                      <option value="Low to High">Low to High</option>
-                    </select>
-                  </div>
-                  <div className="flex justify-center items-center space-x-2 bg-white p-2 text-[14px] rounded-md">
-                    <HiOutlineFilter />
-                    <select className="ml-2 p-1 rounded-md outline-none border-none">
-                      <option value="">Duration</option>
-                      <option value="Newest to Oldest">Newest to Oldest</option>
-                      <option value="Oldest to Newest">Oldest to Newest</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-              <button
-                onClick={() => {
-                  navigate("/admin/dynamic-sidebar/create");
-                }}
-                className="bg-header px-2 py-1.5 rounded-md flex justify-center items-center space-x-2 text-white"
-              >
-                <FaPlus />
-                <span className="text-[12px]">Add Dynamic Sidebar</span>
-              </button>
-            </div>
-          </div>
-          <div className="bg-[#ffffff] text-[13px] text-[#676a6c] w-full overflow-x-auto mt-1">
-            <table className="w-full max-w-full rounded-xl overflow-hidden">
-              <thead>
-                <tr className="border-b-[1px] border-[#DDDDDD] capitalize text-[12px] bg-header text-white font-[500] h-[40px]">
-                  <th className="border-none p-2 whitespace-nowrap w-[10%]">S.no.</th>
-                  <th className="border-none p-2 whitespace-nowrap">name</th>
-                  <th className="border-none p-2 whitespace-nowrap">slug</th>
-                  <th className="border-none p-2 whitespace-nowrap w-[10%]">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {sidebarViewData && sidebarViewData.length > 0 ? (
-                  sidebarViewData.map((element, index) => (
-                    <React.Fragment key={element._id}>
-                      {/* Parent Row */}
-                      <tr onClick={() => toggleRow(index)}
-                        className={`border-b-[1px] border-[#DDDDDD] text-[#374151] text-[14px] ${index % 2 === 0 ? "bg-[#e9ecef]/80" : "bg-white"
-                          }`}
-                      >
-                        <td className="whitespace-nowrap border-none p-2">
-                          {index + 1}
-                        </td>
-                        <td className="whitespace-nowrap border-none p-2">
-                          {element?.name ?? "-"}
-                        </td>
-                        <td className="whitespace-nowrap border-none p-2">
-                          {element?.slug ?? "-"}
-                        </td>
-                        <td className="whitespace-nowrap border-none p-2">
-                          <span className="py-1.5 flex justify-start items-center space-x-2">
-                            <button
-                              onClick={() => {
-                                navigate(
-                                  `/admin/dynamic-sidebar/create/${encrypt(element?._id)}`
-                                );
-                              }}
-                              className="px-2 py-1.5 text-xs rounded-md bg-transparent border border-muted"
-                              type="button"
-                            >
-                              <FaPlus
-                                className=" hover:text-[#337ab7] text-[#3c8dbc]"
-                                size={16}
-                              />
-                            </button>
-                            <button
-                              onClick={() => {
-                                navigate(
-                                  `/admin/dynamic-sidebar/edit/${encrypt(element?._id)}`
-                                );
-                              }}
-                              className="px-2 py-1.5 text-xs rounded-md bg-transparent border border-muted"
-                              type="button"
-                            >
-                              <FaPenToSquare
-                                className=" hover:text-[#337ab7] text-[#3c8dbc]"
-                                size={16}
-                              />
-                            </button>
-                            <button
-                              onClick={() => handleDelete(element?._id)}
-                              className="px-2 py-1.5 rounded-md bg-transparent border border-muted"
-                              type="button"
-                            >
-                              <RiDeleteBin5Line
-                                className="text-red-600 hover:text-red-500"
-                                size={16}
-                              />
-                            </button>
-                          </span>
-                        </td>
-                      </tr>
-                      {expandedRow === index && element.subPages && (
-                        <tr>
-                          <td colSpan={4}>
-                            <table className="w-full max-w-full rounded-xl overflow-hidden">
-                              <tbody>
-                                {renderSubPages(element.subPages)}
-                              </tbody>
-                            </table>
-                          </td>
-                        </tr>
-                      )}
-                    </React.Fragment>
-                  ))
-                ) : (
-                  <tr className="bg-white bg-opacity-5">
-                    <td
-                      colSpan={4}
-                      className="px-6 py-2 whitespace-nowrap font-[600] text-sm text-gray-500"
-                    >
-                      Record Not Found
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+      <div style={{ padding: 24 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
+          <Typography.Title level={4} style={{ margin: 0 }}>
+            Dynamic Sidebar Management
+          </Typography.Title>
+          
+          <Space>
+            {isReorderMode ? (
+              <>
+                <Button
+                  type="primary"
+                  icon={<SaveOutlined />}
+                  onClick={handleSubmitOrder}
+                >
+                  Save Order
+                </Button>
+                <Button onClick={cancelReorder}>
+                  Cancel
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  icon={<DragOutlined />}
+                  onClick={() => setIsReorderMode(true)}
+                >
+                  Reorder Items
+                </Button>
+                <Button
+                  type="primary"
+                  icon={<PlusOutlined />}
+                  onClick={() => navigate("/admin/dynamic-sidebar/create")}
+                >
+                  Add New Sidebar Item
+                </Button>
+              </>
+            )}
+          </Space>
+        </div>
 
-        </>
-      )}
+        {isReorderMode && (
+          <div style={{ marginBottom: 16, padding: '12px 16px', backgroundColor: '#f0f7ff', border: '1px solid #91d5ff', borderRadius: 6 }}>
+            <Typography.Text type="secondary">
+              <strong>Reorder Mode:</strong> Drag items using the handle icon to rearrange. Expand submenus to reorder nested items.
+            </Typography.Text>
+          </div>
+        )}
+
+        {isReorderMode ? (
+          <DndContext 
+            modifiers={[restrictToVerticalAxis]}
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext items={reorderedData.map(item => item._id)} strategy={verticalListSortingStrategy}>
+              <Table
+                columns={reorderColumns}
+                dataSource={reorderedData}
+                pagination={false}
+                rowKey="_id"
+                loading={loading}
+                components={{
+                  body: {
+                    row: DraggableRow,
+                  },
+                }}
+                expandable={{
+                  expandedRowRender,
+                  expandIcon: ({ expanded, onExpand, record }) => 
+                    record.subPages && record.subPages.length > 0 ? (
+                      <Button 
+                        type="text" 
+                        icon={expanded ? <MinusOutlined /> : <PlusCircleOutlined />}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onExpand(record, e);
+                        }}
+                      />
+                    ) : null,
+                  rowExpandable: (record) => record.subPages && record.subPages.length > 0,
+                }}
+                locale={{
+                  emptyText: 'No sidebar items found'
+                }}
+                bordered
+              />
+            </SortableContext>
+            <DragOverlay>
+              {activeId ? (
+                <Table
+                  dataSource={[reorderedData.find(item => item._id === activeId)]}
+                  columns={reorderColumns}
+                  pagination={false}
+                  rowKey="_id"
+                />
+              ) : null}
+            </DragOverlay>
+          </DndContext>
+        ) : (
+          <Table
+            columns={columns}
+            dataSource={sidebarViewData}
+            pagination={false}
+            rowKey="_id"
+            loading={loading}
+            expandable={{
+              expandedRowRender,
+              expandIcon: ({ expanded, onExpand, record }) => 
+                record.subPages && record.subPages.length > 0 ? (
+                  <Button 
+                    type="text" 
+                    icon={expanded ? <MinusOutlined /> : <PlusCircleOutlined />}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onExpand(record, e);
+                    }}
+                  />
+                ) : null,
+              rowExpandable: (record) => record.subPages && record.subPages.length > 0,
+            }}
+            locale={{
+              emptyText: 'No sidebar items found'
+            }}
+            bordered
+          />
+        )}
+      </div>
     </GlobalLayout>
   );
-}
+};
 
 export default DyanmicSidebar;

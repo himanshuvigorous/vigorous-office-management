@@ -141,9 +141,9 @@ function CreateProjectManagement() {
         amountAfterGST: +item?.amountAfterGST,
         remark: item.remark || ""
       })) || [],
-      subTotal: + data.subTotal,
-      GSTTotal: +data?.GSTTotal,
-      finalWithGSTAmount: + data?.finalWithGSTAmount,
+      subTotal: data.items?.length>0 ? + data.subTotal : 0,
+      GSTTotal: data.items?.length>0 ? +data?.GSTTotal : 0,
+      finalWithGSTAmount: data.items?.length>0 ? + data?.finalWithGSTAmount: 0,
       startDate: customDayjs(data.startDate),
       deadlineDate: customDayjs(data.deadlineDate),
       description: data.description,

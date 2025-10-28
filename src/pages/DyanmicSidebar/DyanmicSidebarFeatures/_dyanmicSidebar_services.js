@@ -43,6 +43,21 @@ async function getviewFinalsidebarList(data) {
     return Promise.reject(error);
   }
 }
+
+async function dynamicSidebarOrder(data) {
+  try {
+            localStorage.removeItem(structuredSidebarList)
+    localStorage.removeItem(sidebarList)
+    const response = await apiCall("POST", "dpage/updateSidebarOrder", data);
+
+    if (response) {
+      return { userinfo: response };
+    }
+  } catch (error) {
+    console.error("Plan error:", error);
+    return Promise.reject(error);
+  }
+}
 async function dynamicSidebarSearch(data) {
 
   try {
@@ -122,5 +137,6 @@ export const dyanmicSidebarServices = {
   dynamicPageUpdate,
   dynamicSidebarDelete,
   dynamicSidebarSearch,
-  getviewFinalsidebarList
+  getviewFinalsidebarList,
+  dynamicSidebarOrder,
 };

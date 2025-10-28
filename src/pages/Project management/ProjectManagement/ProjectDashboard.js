@@ -243,19 +243,17 @@ const ProjectDashboard = () => {
             render: (_, record) => (
                 <Space direction="vertical" size={2} style={{ textAlign: 'right' }}>
                     <div>
-                        <Text strong>Amount: </Text>
+                        <Text strong>Total Bill Amount: </Text>
                         <Text>₹{record.finalWithGSTAmount?.toLocaleString() || '0'}</Text>
                     </div>
                     <div>
-                        <Text strong>Balance: </Text>
+                        <Text strong>Amount Due: </Text>
                         <Text type={record.invoiceSummary?.closingBalance < 0 ? 'danger' : 'success'}>
                             ₹{Math.abs(record.invoiceSummary?.closingBalance || 0).toLocaleString()}
                         </Text>
                     </div>
-                    <div>
-                        <Text strong>Created Date: </Text>
-                        <Text>{record.createdAt ? dayjs(record.createdAt).format('DD MMM YYYY') : '-'}</Text>
-                    </div>
+                  
+                   
                 </Space>
             )
         },
@@ -355,7 +353,7 @@ const ProjectDashboard = () => {
         }
     ];
 
-    const SummaryCard = ({ title, value, icon, color, prefix, suffix, trend, description, isFiltered }) => {
+    const SummaryCard = ({ title, value, icon, color, prefix, suffix, trend, description, isFiltered, onClick }) => {
         return (
             <Card
                 bordered={false}
@@ -367,6 +365,7 @@ const ProjectDashboard = () => {
                     overflow: 'hidden'
                 }}
                 bodyStyle={{ padding: '16px' }}
+                onClick={onClick}
             >
                 {/* {isFiltered && (
                     <div style={{
@@ -685,15 +684,16 @@ const ProjectDashboard = () => {
                                         icon={<ProjectOutlined />}
                                         color="#3b82f6"
                                         description="All projects in the system"
+                                        onClick={()=>navigate('/admin/project-management')}
                                     />
                                 </Col>
                                 <Col xs={24} sm={12} md={6}>
                                     <SummaryCard
-                                        title="Total Transactions"
+                                        title="Project Transactions"
                                         value={projectmanagementdashboardData?.dashboardCounts?.totalInvoices?.totalInvoices || 0}
                                         icon={<FileTextOutlined />}
                                         color="#6366f1"
-                                        description="All financial transactions"
+                                        description="Total Invoices And Payments"
                                         isFiltered={showDateFilter}
                                     />
                                 </Col>
@@ -704,6 +704,7 @@ const ProjectDashboard = () => {
                                         icon={<TeamOutlined />}
                                         color="#8b5cf6"
                                         description="Active team members"
+                                        onClick={()=>navigate('/admin/accountant-management')}
                                     />
                                 </Col>
                                 <Col xs={24} sm={12} md={6}>
@@ -715,6 +716,7 @@ const ProjectDashboard = () => {
                                         prefix="₹"
                                         description="Total expenses on purchases"
                                         isFiltered={showDateFilter}
+                                        onClick={()=>navigate('/admin/project-purchase-and-expence')}
                                     />
                                 </Col>
                             </Row>

@@ -50,7 +50,21 @@ export const getVendorDetails = createAsyncThunk(
     }
   }
 );
-
+export const getvendorFundOrPurchaseReport = createAsyncThunk(
+  "user/getvendorFundOrPurchaseReport",
+  async (reqData, { rejectWithValue }) => {
+    try {
+      const response = await vendorServices.getvendorFundOrPurchaseReport(reqData);
+      return response;
+    } catch (error) {
+      showNotification({
+        message: error?.data?.message,
+        type: 'error',
+      });
+      return rejectWithValue(error.message);
+    }
+  }
+);
 export const createVendorFunc = createAsyncThunk(
   "user/createVendorFunc",
   async (reqData, { rejectWithValue }) => {
@@ -198,6 +212,23 @@ const vendorSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
         state.vendorDetails = null;
+      })
+      .addCase(getvendorFundOrPurchaseReport.pending, (state) => {
+        state.loading = true;
+        state.vendorFundPurchaseDataList = [];
+        state.vendorFundPurchaseDataCount = null;
+      })
+      .addCase(getvendorFundOrPurchaseReport.fulfilled, (state, action) => {
+        state.loading = false;
+        state.vendorFundPurchaseDataList = action.payload?.data?.docs
+        state.vendorFundPurchaseDataCount = action.payload?.data?.totalDocs;
+
+      })
+      .addCase(getvendorFundOrPurchaseReport.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+        state.vendorFundPurchaseDataList = [];
+        state.vendorFundPurchaseDataCount = null;
       })
   },
 });

@@ -120,7 +120,6 @@ const Sidebar = () => {
     ?.filter(
       (item) => item.visible && (!item.role || item.role.includes(userType)))
     .sort((a, b) => a.orderBy - b.orderBy);
-    console.log(sortedMenuItems,sidebarDynamicData)
 
   const navigate = useNavigate();
 

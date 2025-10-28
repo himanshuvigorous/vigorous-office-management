@@ -1,4 +1,4 @@
-import { Controller, useForm, useWatch } from "react-hook-form";
+import { Controller, set, useForm, useWatch } from "react-hook-form";
 import GlobalLayout from "../../../global_layouts/GlobalLayout/GlobalLayout";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
@@ -25,6 +25,8 @@ import { createfundTransfer, getfundTransferDetails } from "./fundTransferFeatur
 import { FaRegFile, FaTimes } from "react-icons/fa";
 import { expenseTypeSearch } from "../../global/other/ExpenseHead/expenseTypeFeature/_expenseType_reducers";
 import { decrypt } from "../../../config/Encryption";
+import ListLoader from "../../../global_layouts/ListLoader";
+import { vendorSearch } from "../../financeManagement/vendor/vendorFeatures/_vendor_reducers";
 
 const EditFundTransfer = () => {
   const { loading: FundtransferLoading } = useSelector(
@@ -87,6 +89,8 @@ const EditFundTransfer = () => {
   };
 
   const { accountantList: accountants, loading: loadingAccountants } = useSelector((state) => state.accountManagement);
+  const { vendorDataList, loading: vendorListLoading } = useSelector(state => state.vendor)
+
 
   const CompanyId = useWatch({
     control,
@@ -126,8 +130,9 @@ const EditFundTransfer = () => {
       setValue("receiverBankAccId", fundTransferDetails?.receiverBankAccId);
       setValue("senderBankAccId", fundTransferDetails?.senderBankAccId);
       setValue("senderAccountentId", fundTransferDetails?.senderAccountentId);
-      setValue("isExpense", fundTransferDetails?.isExpense===true?"Yes":"No");
+      setValue("isExpense", fundTransferDetails?.isExpense === true ? "Yes" : "No");
       setValue("expenseId", fundTransferDetails?.expenseId);
+      setValue("vendorId", fundTransferDetails?.vendorId);
       setAttachment(fundTransferDetails?.attechment);
     }
   }, [fundTransferDetails]);
@@ -170,7 +175,8 @@ const EditFundTransfer = () => {
         senderBankAccId: data?.senderBankAccId,
         senderUserId: accountants?.find((acc) => acc?._id === data?.senderAccountentId)?.accountentData?._id,
         isExpense: data?.isExpense === "Yes" ? true : false,
-        expenseId: data?.expencehead?.value || ""
+        expenseId: data?.expencehead?.value || "",
+        vendorId: data?.vendorId || "",
       };
     }
 
@@ -244,6 +250,17 @@ const EditFundTransfer = () => {
       status: true,
       isPagination: false,
     }))
+    dispatch(
+      vendorSearch({
+        companyId: userInfoglobal?.userType === "admin" ? CompanyId : userInfoglobal?.userType === "company" ? userInfoglobal?._id : userInfoglobal?.companyId,
+        branchId: userInfoglobal?.userType === "company" || userInfoglobal?.userType === "admin" || userInfoglobal?.userType === "companyDirector" ? BranchId : userInfoglobal?.userType === "companyBranch" ? userInfoglobal?._id : userInfoglobal?.branchId,
+        isPagination: false,
+        text: "",
+        sort: true,
+        status: true,
+        groupId: "",
+      })
+    );
   }, []);
 
   return (
@@ -457,6 +474,42 @@ const EditFundTransfer = () => {
                 <p className="text-red-500 text-sm">{errors.amount.message}</p>
               )}
             </div>
+            {TransferType === "debit" && <div className="">
+              <label className={`${inputLabelClassName}`}>
+                Vendor
+              </label>
+
+              <Controller
+                control={control}
+                name="vendorId"
+
+                render={({ field }) => (
+                  <Select
+                    {...field}
+                    defaultValue={""}
+                    className={`${inputAntdSelectClassName} `}
+
+                    showSearch
+                    filterOption={(input, option) =>
+                      String(option?.children).toLowerCase().includes(input.toLowerCase())
+                    }
+                  >
+                    <Select.Option value="">Select Vendor</Select.Option>
+                    {vendorListLoading ? <Select.Option disabled>
+                      <ListLoader />
+                    </Select.Option> : (vendorDataList?.map((elment, index) => (
+                      <option value={elment?._id}>{elment?.fullName}</option>
+                    )))}
+                  </Select>
+                )}
+              />
+
+              {errors.vendorId && (
+                <p className="text-red-500 text-sm">
+                  {errors.vendorId.message}
+                </p>
+              )}
+            </div>}
             {TransferType === "debit" && <div className="">
 
               <label className={`${inputLabelClassName}`}>
